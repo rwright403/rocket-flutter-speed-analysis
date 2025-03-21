@@ -6,9 +6,11 @@ Given a supersonic rocket with chosen fin dimensions, solve the divergence and f
 ## UVic Rocketry Anduril-2 Information:
 1) Dimensions:
 
-L/D: 12?
+L/D ratio: 12?
 
 Fin shape:
+
+Fin attachment to fuselage/boat tail:
 
 2) Flight Profile:
 
@@ -48,8 +50,9 @@ Non structural mass:
 - cg (x,y,z)
 - I (xx, yy, zz, xy, xz, yz)
 
-Connect to fins with RB3? RB2? 
-
+Connect to fins with RB1? RB2? --> question of dof
+- rb2 - rigid load transfer to fuselage
+- rb1 - flexible load transfer to fuselage --> this would be used if we were modelling fin feet or attachment to high detail (might be worth???)
 
 
 ## Aerodynamic Model ✈️
@@ -76,9 +79,9 @@ For supersonic flow, msc nastran has Mach Box and ZONA51 implemented.
 - Correction for fin thickness in ZONA51  is important for Ma > 1.2 [4]
 - One plane symmetry supported (y=0) [1]
 
-Bulk Data --> CAERO1
-Entries --> PAERO1  
-see [1] pdf page 120 for setup guide
+Bulk Data --> CAERO1 --> see [1] pdf page 120 for setup guide, some attention to detail required here
+Entries --> PAERO1 --> this defines which panels interfere with each other
+
 
 
 
@@ -137,6 +140,6 @@ TODO: try first tutorial to build an understanding of how all the pieces fit tog
 | [4]    | A Sensitivity Investigation on the Aeroelastic Dynamic Stability of Slender Spinning Sounding Rockets | shows nastran model setup and validation, basically what we want to do | doi: 10.5028/jatm.v5i1.192 |
 | [5]    | MSC Nastran online card desc | Understanding model setup | https://nexus.hexagon.com/documentationcenter/en-US/bundle/MSC_Nastran_2021/page/Nastran_Combined_Book/qrg/bulk_data/TOC.Bulk.Data.Entry.xhtml |
 | [6]    | Ata engineering flutter tutorial | useful overview | https://www.youtube.com/watch?v=GjBXsR6SSLY&t=165s |
-
+| [7]    | Introduction to aircraft aeroelasticity and loads | good resource for learning flutter | book |
 
 <!-- This is a comment in a Markdown file (not rendered) --> 
