@@ -1,0 +1,11 @@
+{
+    "workbench.colorTheme": "Cosy Orange Theme",  // Change this to your preferred theme
+    
+    "editor.tokenColorCustomizations": {
+        "comments": "#00ff00",  // Example: Make comments green
+        "keywords": "#00ffaa",   // Example: Change keyword color
+    },
+    "[markdown]": {
+        "editor.wordWrap": "off"
+    }
+}
