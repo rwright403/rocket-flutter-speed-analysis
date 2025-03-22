@@ -6,9 +6,21 @@ Given a supersonic rocket with chosen fin dimensions, solve the divergence and f
 ## UVic Rocketry Anduril-2 Information:
 1) Dimensions:
 
+   Fuselage outer diameter: 5.75 in
+   Total rocket length: 97.64 in
+   Span: 5 in
+   Root chord: 13 in
+   Tip chord: 3.5 in
+   Sweep distance: 8.5 in
+   Fin thickness: 0.255 in
+   Fin count: 4
+   
+
 L/D ratio: 12?
 
 Fin shape:
+
+
 
 Fin attachment to fuselage/boat tail:
 
