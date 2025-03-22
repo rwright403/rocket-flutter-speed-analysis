@@ -40,6 +40,15 @@ Model-75:
 
 ## Aerodynamic Model ✈️
 
+- for supersonic want 1:1 aspect ratio box elements
+- seems like infinite plate spline is most commonly used from the video [6]
+- for a solid plate al fin, the aero loads are directly transfered to the plate so spline on 
 
 
+## SETUP:
+
+chose
+
+
+## Material:
 
