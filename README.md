@@ -19,10 +19,11 @@ Given a supersonic rocket with chosen fin dimensions, solve the divergence and f
 L/D ratio: 12?
 
 Fin shape:
-
+Trapezoidal profile w/ hexagonal airfoil
 
 
 Fin attachment to fuselage/boat tail:
+Loctite EA E-120-HP Epoxy
 
 2) Flight Profile:
 
