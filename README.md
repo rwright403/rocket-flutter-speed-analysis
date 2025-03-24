@@ -154,5 +154,7 @@ TODO: try first tutorial to build an understanding of how all the pieces fit tog
 | [5]    | MSC Nastran online card desc | Understanding model setup | https://nexus.hexagon.com/documentationcenter/en-US/bundle/MSC_Nastran_2021/page/Nastran_Combined_Book/qrg/bulk_data/TOC.Bulk.Data.Entry.xhtml |
 | [6]    | Ata engineering flutter tutorial | useful overview | https://www.youtube.com/watch?v=GjBXsR6SSLY&t=165s |
 | [7]    | Introduction to aircraft aeroelasticity and loads | good resource for learning flutter | book |
+| [8]    | Pynastran github | library likely useful for pre/postprocessing but also has an example model library | https://github.com/SteveDoyle2/pyNastran/tree/main/models |
+
 
 <!-- This is a comment in a Markdown file (not rendered) --> 

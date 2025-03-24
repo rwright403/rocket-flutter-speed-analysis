@@ -44,6 +44,8 @@ Model-75:
 - seems like infinite plate spline is most commonly used from the video [6]
 - for a solid plate al fin, the aero loads are directly transfered to the plate so spline on 
 
+- for adding the group to the structural grid group field in the aero panel need to right click the group of elements and add all selected to ensure nodes are included
+- Not sure where to make the mkaero card but its all the reduced frequencies and mach numbers analysed
 
 ## SETUP:
 
