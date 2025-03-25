@@ -31,6 +31,13 @@ Velocity
 
 
 
+## Workflow Notes
+
+1) Start with flight path and fin geometry from flight sim / analysis
+2) Build Structural/aero model
+3) Run a SOL 103 
+
+
 ## Structural Model🗼
 
 ### Fuselage and Nosecone 

@@ -21,8 +21,8 @@ Model-75:
     Root chord: 202.5 mm
     Tip chord: 127.5 mm
     Span: 165 mm
-    Bevel length: 1.73 mm
     Thickness: 2mm
+    Bevel length: 1.73 mm
     Leading & trailing edge bevel angle: 60°
     Plate aspect ratio (longest side length/shortest side length): 1.0
     Taper ratio: 0.63
