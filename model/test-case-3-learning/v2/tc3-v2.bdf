@@ -151,8 +151,8 @@ CQUAD4        39       1      53      54      17      18
 CQUAD4        40       1      54      55      16      17                
 CQUAD4        41       1      55      56      15      16                
 CQUAD4        42       1      56      13      14      15    
-MKAERO1 1.3     1.3     1.3
-MK        .03     .04     .05      
+MKAERO1      1.3     1.3     1.3                                        +MK
++MK          .03     .04     .05   
 $ Femap Aero Property 1 : Aero Property
 PAERO1         1                                                        
 $ Femap Aero Panel 1 : Aero Panel

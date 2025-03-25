@@ -16,8 +16,8 @@ symbol=DELDIR='c:/program files/msc.software/napa_se/20241/nastran/msc20241/nast
 symbol=DEMODIR='c:/program files/msc.software/napa_se/20241/nastran/msc20241/nast/demo' $(program default)
 symbol=SSSALTERDIR='c:/program files/msc.software/napa_se/20241/nastran/msc20241/nast/sssalter' $(program default)
 symbol=TPLDIR='c:/program files/msc.software/napa_se/20241/nastran/msc20241/nast/tpl' $(program default)
-SDIR='c:/scratch/tc3-v2.T7496_22'
-DBS='c:/scratch/tc3-v2.T7496_22'
+SDIR='c:/scratch/tc3-v2.T44736_17'
+DBS='c:/scratch/tc3-v2.T44736_17'
 SCR='yes'
 SMEM=100
 BPOOL=114MB
@@ -49,33 +49,33 @@ FPE:         yes
 ----------------------------------------------------------------- 
 Current resource limits:
  Physical memory:                    32372 MB
- Physical memory available:          10522 MB
- Paging file size:                   40397 MB
- Paging file size available:          4021 MB
+ Physical memory available:          13770 MB
+ Paging file size:                   36479 MB
+ Paging file size available:          9422 MB
  Virtual memory:                 134217727 MB
  Virtual memory available:       134213506 MB
 ----------------------------------------------------------------- 
 System configuration:
- Hostname:         rwright2
+ Hostname:         rwright2.uvic.ca
  Architecture:     win64i8
  Platform:         Intel Windows 10 Home 6.2 9200 (Windows Compute Cluster)
  Model:            13th Gen Intel(R) Core(TM) i9-
- Clock freq.:      6900 MHz
+ Clock freq.:      7227 MHz
  Number of CPUs:   20
  Number of CPUs:   0 ( limited by PBS )
  Executable:       standard
  Raw model ID:     6
  Config number:    6
  Physical memory:  32372 MB
- Virtual memory:   40397 MB
+ Virtual memory:   36479 MB
  Numeric format:   64-bit little-endian IEEE.
  Bytes per word:   8
  Disk block size:  512 bytes (64 words)
  Remote shell cmd: "c:/program files/msc.software/napa_se/20241/nastran/msc20241/win64i8/mscrmtcmd.exe" (Windows non-CCS nodes, UNIX)
                    <ccs_cmd> (Windows CCS nodes)
 ----------------------------------------------------------------- 
-MSC Nastran started  Mon Mar 24 01:19:23 PDT 2025 
- 01:19:24  Beginning Analysis
+MSC Nastran started  Mon Mar 24 17:55:17 PDT 2025 
+ 17:55:19  Beginning Analysis
 SCA Kernel 30.0.935612 successfully initialized
 BLAS/LAPACK .dll "c:\program files\msc.software\napa_se\20241\nastran\msc20241\win64i8\libimalloc.dll" has been loaded.
 BLAS/LAPACK .dll "c:\program files\msc.software\napa_se\20241\nastran\msc20241\win64i8\mkl_core.2.dll" has been loaded.
@@ -83,26 +83,61 @@ BLAS/LAPACK .dll "c:\program files\msc.software\napa_se\20241\nastran\msc20241\w
 BLAS/LAPACK .dll "c:\program files\msc.software\napa_se\20241\nastran\msc20241\win64i8\mkl_rt.2.dll" has been loaded.
 BLAS/LAPACK .dll "c:\program files\msc.software\napa_se\20241\nastran\msc20241\win64i8\MSCblas.dll" has been loaded.
 
- 01:19:24  MSC Authorization Information - Checkout Successful (1016, 0)
- 01:19:24  -------------------------------------------------------------
- 01:19:24  Acquired 1 license for Student Edition Nastran
+ 17:55:19  MSC Authorization Information - Checkout Successful (1016, 0)
+ 17:55:19  -------------------------------------------------------------
+ 17:55:19  Acquired 1 license for Student Edition Nastran
 
 
 Beginning bulk data processing using the IFPStar component.
 For more information on IFPStar, please see KB article KB8019200
 on our support pages, at http://simcompanion.hexagon.com.
 
- 01:19:24  171 records read from JID file "c:/users/rwrig/desktop/files/rocket-flutter-speed-analysis/model/test-case-3-learning/v2/tc3-v2.bdf"
+ 17:55:19  171 records read from JID file "c:/users/rwrig/desktop/files/rocket-flutter-speed-analysis/model/test-case-3-learning/v2/tc3-v2.bdf"
+
+Processing of bulk data entries is complete.
+
+
+ 17:55:19  MSC Authorization Information - System Attributes (1004, 0)
+ 17:55:19  -----------------------------------------------------------
+  Date:          Mon Mar 24 17:55:19 2025
+  LAPI Version:  LAPI 12.0.0 (CL NOTSET) (FLEXlm 11.16.3.0)
+  License Mode:  Student Edition
+
+  * * * * * * * * * * * * * * * * * * * *
+  * * * * * * * * * * * * * * * * * * * *
+  * *                                 * *
+  * *   MSC Customer Entitlement ID   * *
+  * *        5d733019-G11F7F39        * *
+  * *                                 * *
+  * * * * * * * * * * * * * * * * * * * *
+  * * * * * * * * * * * * * * * * * * * *
+
+ 17:55:19  MSC Authorization Information - Checkout Successful (1016, 0)
+ 17:55:19  -------------------------------------------------------------
+ 17:55:19  Acquired 1 license for Student Edition Nastran Aero - Basic
+
+
+ 17:55:19  MSC Authorization Information - Checkout Successful (1016, 0)
+ 17:55:19  -------------------------------------------------------------
+ 17:55:19  Acquired 1 license for Student Edition Nastran Aero - Basic
+
+ 17:55:19  Finite element model generation started.
+ 17:55:19  Finite element model generated 336 degrees of freedom.
+ 17:55:19  Finite element model generation successfully completed.
+ 17:55:19  Application of Loads and Boundary Conditions to the finite element model started.
+ 17:55:19  Application of Loads and Boundary Conditions to the finite element model successfully completed.
+ 17:55:19  Solution of the system equations for normal modes started.
+ 17:55:19  Solution of the system equations for normal modes successfully completed.
  ================================================== 
  Warning/Fatal Message Summary           Occurrence
-         USER FATAL MESSAGE      307.1          1 
-         USER FATAL MESSAGE     9002.2          1 
+       USER WARNING MESSAGE     6636.5          1 
+         USER FATAL MESSAGE     4405.0          1 
  ================================================== 
- 01:19:25  19 records read from JID file "c:/users/rwrig/desktop/files/rocket-flutter-speed-analysis/model/test-case-3-learning/v2/tc3-v2.bdf"
- 01:19:25  NSEXIT: EXIT(0)
- 01:19:25  Analysis complete  0
-Real:        0.294 seconds ( 0:00:00.294)
-User:        0.187 seconds ( 0:00:00.187)
+ 17:55:19  19 records read from JID file "c:/users/rwrig/desktop/files/rocket-flutter-speed-analysis/model/test-case-3-learning/v2/tc3-v2.bdf"
+ 17:55:19  NSEXIT: EXIT(0)
+ 17:55:19  Analysis complete  0
+Real:        0.330 seconds ( 0:00:00.330)
+User:        0.171 seconds ( 0:00:00.171)
 Sys:         0.156 seconds ( 0:00:00.156)
  ==================================================
  OS:                           6.2
@@ -125,4 +160,4 @@ Sys:         0.156 seconds ( 0:00:00.156)
  Detailed performance information can be found in the 
  "MSC Nastran High Performance Computing User's Guide"
  =====================================================
-MSC Nastran finished Mon Mar 24 01:19:25 PDT 2025 
+MSC Nastran finished Mon Mar 24 17:55:19 PDT 2025 

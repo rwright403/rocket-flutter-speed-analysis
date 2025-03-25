@@ -202,27 +202,6 @@
 1    MSC NASTRAN FLUTTER ANALYSIS SET                   **STUDENT EDITION*    MARCH  24, 2025  MSC Nastran  5/13/24   PAGE     4
                                                                                                                                     
 0                                                                                                                                   
-                                              I N P U T   B U L K   D A T A   E C H O                                               
-                 ENTRY                                                                                                              
-                 COUNT        .   1  ..   2  ..   3  ..   4  ..   5  ..   6  ..   7  ..   8  ..   9  ..  10  .                      
- *** USER INFORMATION MESSAGE 9991 (SDLWIF)
-     Messages are being generated at include level 0.
-     File: c:/users/rwrig/desktop/files/rocket-flutter-speed-analysis/model/test-case-3-learning/v2/tc3-v2.bdf
- *** USER FATAL MESSAGE 9994 (BULKRF)
-     No continuation is provided for entry MKAERO1 near line 154.
-
- *** USER WARNING MESSAGE 9994 (BULKEF)
-      The following lines could not be processed by the current IFPSTAR rule base.
-      They are being passed to Classic IFP for an additional attempt at resolution.
-                              MK        .03     .04     .05      
-1    MSC NASTRAN FLUTTER ANALYSIS SET                   **STUDENT EDITION*    MARCH  24, 2025  MSC Nastran  5/13/24   PAGE     5
-                                                                                                                                    
-0                                                                                                                                   
- *** USER FATAL MESSAGE 208 (SCA.MDSolver.Io.AccessAccess:AccessAccess::StreamToBinary)
-     Fatal messages were encountered while converting the stream input file c:/users/rwrig/desktop/files/rocket-flutter-speed-analysis/model/test-case-3-learning/v2/tc3-v2.bdf.
- *** USER FATAL MESSAGE 102 (SCA.MDSolver.Obj.InputFile:InputFile::read)
-Severe fatal Errors occured while reading the input file c:/users/rwrig/desktop/files/rocket-flutter-speed-analysis/model/test-case-3-learning/v2/tc3-v2.bdf.
-Check the MDSolver.System.PrintListener output.
                                         M O D E L   S U M M A R Y          BULK = 0
                                    ENTRY NAME        NUMBER OF ENTRIES
                                    ----------        -----------------
@@ -239,27 +218,114 @@ Check the MDSolver.System.PrintListener output.
                                        PAERO1                        1
                                         PARAM                        7
                                        PSHELL                        1
-                                     REJ_BULK                        8
                                          SET1                        1
                                          SPC1                        1
                                       SPLINE1                        1
 
- *** USER WARNING MESSAGE 285 (DML)
-     FATAL ERRORS WERE FOUND WHILE READING THIS BEGIN SECTION
-      MODEL SUMMARY DOES NOT INCLUDE COUNT OF FATAL ENTITIES
- *** USER FATAL MESSAGE 307 (IFPDRV)
-     ILLEGAL NAME FOR BULK DATA ENTRY MK
-     User information:
-     See Section 5 of the MSC NASTRAN Quick Reference Guide.
  ^^^     
  ^^^ >>> IFP OPERATIONS COMPLETE <<< 
  ^^^     
- ^^^     
- *** USER FATAL MESSAGE 9002 (SUBDMAP IFPS)
-     ERROR(S) ENCOUNTERED IN THE MAIN BULK DATA SECTION
-     SEE MESSAGES ABOVE. ERROR ENCOUNTERED IN MODULE IFP,
- ^^^     
+ *** USER INFORMATION MESSAGE 4109 (OUTPX2)
+     THE LABEL IS XXXXXXXX FOR FORTRAN UNIT    12
+     (MAXIMUM SIZE OF FORTRAN RECORDS WRITTEN =          7 WORDS.)
+           (NUMBER OF FORTRAN RECORDS WRITTEN =          8 RECORDS.)
+                (TOTAL DATA WRITTEN FOR LABEL =         17 WORDS.)
+ *** SYSTEM INFORMATION MESSAGE 7357 (GICOMS)
+     SPLINE         1 IS COMPRISED OF A SET OF COPLANAR GRID POINTS.  TPS METHOD REVERTS TO IPS FOR THIS CASE.
+1    MSC NASTRAN FLUTTER ANALYSIS SET                   **STUDENT EDITION*    MARCH  24, 2025  MSC Nastran  5/13/24   PAGE     5
+                                                                                                                                    
+0                                                                                                                                   
+                           O U T P U T   F R O M   G R I D   P O I N T   W E I G H T   G E N E R A T O R
+0                                                     REFERENCE POINT =        0
+                                                                M O
+                      *  9.801000E-02  0.000000E+00  0.000000E+00  0.000000E+00  7.473262E-03  0.000000E+00 *
+                      *  0.000000E+00  9.801000E-02  0.000000E+00 -7.473262E-03  0.000000E+00  1.162198E-02 *
+                      *  0.000000E+00  0.000000E+00  9.801000E-02  0.000000E+00 -1.162198E-02  0.000000E+00 *
+                      *  0.000000E+00 -7.473262E-03  0.000000E+00  8.007213E-04  0.000000E+00 -9.386499E-04 *
+                      *  7.473262E-03  0.000000E+00 -1.162198E-02  0.000000E+00  2.434388E-03  0.000000E+00 *
+                      *  0.000000E+00  1.162198E-02  0.000000E+00 -9.386499E-04  0.000000E+00  1.633667E-03 *
+                                                                 S
+                                           *  1.000000E+00  0.000000E+00  0.000000E+00 *
+                                           *  0.000000E+00  1.000000E+00  0.000000E+00 *
+                                           *  0.000000E+00  0.000000E+00  1.000000E+00 *
+                               DIRECTION
+                          MASS AXIS SYSTEM (S)     MASS              X-C.G.        Y-C.G.        Z-C.G.
+                                  X            9.801000E-02      0.000000E+00  0.000000E+00  7.625000E-02
+                                  Y            9.801000E-02      1.185795E-01  0.000000E+00  7.625000E-02
+                                  Z            9.801000E-02      1.185795E-01  0.000000E+00  0.000000E+00
+                                                                I(S)
+                                           *  2.308850E-04  0.000000E+00  5.247387E-05 *
+                                           *  0.000000E+00  4.864227E-04  0.000000E+00 *
+                                           *  5.247387E-05  0.000000E+00  2.555377E-04 *
+                                                                I(Q)
+                                           *  2.971136E-04                             *
+                                           *                4.864227E-04               *
+                                           *                              1.893092E-04 *
+                                                                 Q
+                                           *  6.210153E-01  0.000000E+00  7.837984E-01 *
+                                           *  0.000000E+00  1.000000E+00  0.000000E+00 *
+                                           * -7.837984E-01  0.000000E+00  6.210153E-01 *
+
 1    MSC NASTRAN FLUTTER ANALYSIS SET                   **STUDENT EDITION*    MARCH  24, 2025  MSC Nastran  5/13/24   PAGE     6
+                                                                                                                                    
+0                                                                                                                                   
+1    MSC NASTRAN FLUTTER ANALYSIS SET                   **STUDENT EDITION*    MARCH  24, 2025  MSC Nastran  5/13/24   PAGE     7
+                                                                                                                                    
+0                                                                                                                                   
+0 RESULTANTS ABOUT ORIGIN OF SUPERELEMENT BASIC COORDINATE SYSTEM IN SUPERELEMENT BASIC SYSTEM COORDINATES.
+
+0                                                  OLOAD    RESULTANT       
+  SUBCASE/    LOAD
+  DAREA ID    TYPE       T1            T2            T3            R1            R2            R3
+0        1     FX    0.000000E+00     ----          ----          ----       0.000000E+00  0.000000E+00                             
+               FY       ----       0.000000E+00     ----       0.000000E+00     ----       0.000000E+00                             
+               FZ       ----          ----       0.000000E+00  0.000000E+00  0.000000E+00     ----                                  
+               MX       ----          ----          ----       0.000000E+00     ----          ----                                  
+               MY       ----          ----          ----          ----       0.000000E+00     ----                                  
+               MZ       ----          ----          ----          ----          ----       0.000000E+00                             
+             TOTALS  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ *** USER INFORMATION MESSAGE 5010 (LNCILS)
+     STURM SEQUENCE DATA FOR EIGENVALUE EXTRACTION.
+     TRIAL EIGENVALUE = 6.316547D+06, CYCLES = 4.000000D+02 THE STURM COUNT = 0
+     User information:
+     This message is automatic output during eigenvalue extraction.  This
+     can be used, along with the list of eigenvalues, to identify the modes
+     found. See the MSC NASTRAN Numerical Methods User's Guide.
+
+ TABLE OF SHIFTS:  (LNNRIGL)
+ SHIFT #        SHIFT VALUE         FREQUENCY, CYCLES     # EIGENVALUES BELOW    # NEW EIGENVALUES FOUND
+     1.        6.3165468E+06          4.0000000E+02                 0                        0
+
+ *** USER WARNING MESSAGE 6636 (LNNRIGL)
+      EITHER NO MODES EXIST BETWEEN -1.4304580E+03 HZ AND  4.0000000E+02 HZ
+      OR THE EIGENSOLVER WAS UNABLE TO FIND ALL MODES IN THAT RANGE.
+1    MSC NASTRAN FLUTTER ANALYSIS SET                   **STUDENT EDITION*    MARCH  24, 2025  MSC Nastran  5/13/24   PAGE     8
+                                                                                                                                    
+0                                                                                                                                   
+0                                                                                                                                   
+                                                                                                                                    
+                                                                                                                                    
+ *** USER FATAL MESSAGE 4405 (PRTPRN)
+     NO EIGENVECTORS COMPUTED FOR COMPONENT MODE SYNTHESIS OR SYSTEM SOLUTION.
+     User information:
+     The eigenvectors computed in component mode synthesis (CMS) are
+     used to approximate the motion of the component.  Some vectors must
+     be present to perform this reduction. For the system solution, an
+     exit is taken if eigenvalues are requested but not eigenvectors.
+     Reset the "range of frequency" and/or the "number desired" on the EIGR
+     EIGR or EIGRL entry.  If the superelement does not have any eigenvalues
+     in the range of interest, remove the CMS request for that particular
+     superelement.
+  
+     This message is also issued when the eigenvectors calculated with a
+     transformation method such as GIV do not pass internal orthogonality
+     checks.  This is indicative of a modeling error.
+  
+     This message can also be issued if insufficient memory is available
+     for the Lanczos method with sparse decomposition.
+  
+     This could occur with UFM 5401 and be related to UWM 5411.
+1    MSC NASTRAN FLUTTER ANALYSIS SET                   **STUDENT EDITION*    MARCH  24, 2025  MSC Nastran  5/13/24   PAGE     9
                                                                                                                                     
 0                                                                                                                                   
 0                                                                                                                                   
@@ -283,7 +349,12 @@ Check the MDSolver.System.PrintListener output.
      harmonic, the run will not continue to the next harmonic and the message
      will result.  Instead of selecting a frequency range, input the desired
      number of modes.
-1    MSC NASTRAN FLUTTER ANALYSIS SET                   **STUDENT EDITION*    MARCH  24, 2025  MSC Nastran  5/13/24   PAGE     7
+ *** USER INFORMATION MESSAGE 4110 (OUTPX2)
+                                 END-OF-DATA SIMULATION ON FORTRAN UNIT    12
+                                 (MAXIMUM SIZE OF FORTRAN RECORDS WRITTEN =      1 WORDS.)
+                                       (NUMBER OF FORTRAN RECORDS WRITTEN =      1 RECORDS.)
+                                       (TOTAL DATA WRITTEN FOR EOF MARKER =      1 WORDS.)
+1    MSC NASTRAN FLUTTER ANALYSIS SET                   **STUDENT EDITION*    MARCH  24, 2025  MSC Nastran  5/13/24   PAGE    10
                                                                                                                                     
 0                                                                                                                                   
  * * * *  D B D I C T   P R I N T  * * * *      SUBDMAP = PRTSUM  ,  DMAP STATEMENT NO.     75
@@ -293,6 +364,7 @@ Check the MDSolver.System.PrintListener output.
 0                                   * * * *  A N A L Y S I S  S U M M A R Y  T A B L E  * * * *
 0 SEID  PEID PROJ VERS APRCH      SEMG SEMR SEKR SELG SELR MODES DYNRED SOLLIN SOLNL LOOPID DESIGN CYCLE SENSITIVITY
  -------------------------------------------------------------------------------------------------------------------
+     0     0    1    1 '        '    T    T    T    T    T     F      F      F     F     -1            0           F
 0SEID = SUPERELEMENT ID.
  PEID = PRIMARY SUPERELEMENT ID OF IMAGE SUPERELEMENT.
  PROJ = PROJECT ID NUMBER.
