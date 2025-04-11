@@ -1,3 +1,4 @@
 .vscode
+venv/
 /model/test/
 ext/MachLine/
