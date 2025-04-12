@@ -2,3 +2,4 @@
 venv/
 /model/test/
 ext/MachLine/
+__pycache__/

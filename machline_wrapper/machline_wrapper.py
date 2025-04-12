@@ -1,14 +1,6 @@
 import subprocess
 import os
 
-def debug_dir(path):
-    print(f"\n🔍 Listing contents of: {path}")
-    if os.path.exists(path):
-        for item in os.listdir(path):
-            print("  -", item)
-    else:
-        print("  ❌ Path does not exist!")
-
 def run_machline(input_file_path):
 
     result = subprocess.run(
