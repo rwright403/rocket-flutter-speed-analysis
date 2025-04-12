@@ -37,7 +37,14 @@ Initially tried to use NASTRAN:
 - MSC NASTRAN did not have flutter accessible in the student version
 - Altair Hypermesh (NASTRAN) did not have supersonic aero
 
-Therefore we need to work at a lower level: New approach to use existing aero and structural models and create our own solver.
+Therefore we need to work at a lower level: 
+- New approach "weakly coupled solver"
+Chosen to use existing aero and structural models (I dont want to code everything from scratch my bad!)
+
+Using a virtual environment to stop this from interfering w other python projects:
+Enter virtual env with - source venv/bin/activate
+Exit with - deactivate
+
 
 _old
 1) Start with flight path and fin geometry from flight sim / analysis
@@ -94,8 +101,7 @@ https://fenicsproject.org/
 
 See [4]
 
-Potentially See [3] - seems to use piston theory, ZONA51 is more complicated
-This case does not include body shockwaves
+Potentially See [3] - seems to use piston theory
 
 [1] also has examples
 TODO: try first tutorial to build an understanding of how all the pieces fit together
