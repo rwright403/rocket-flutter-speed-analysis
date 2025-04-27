@@ -1,12 +1,13 @@
 # rocket-flutter-speed-analysis 🚀
 A losely coupled flutter speed calculator built using open-source and software available to students (from a student license).
+Based on the method created by [5]
 
 ## Required Program Inputs:
 ### CFD - from Openfoam:
-The following files:
+The following flow data along rocket oml:
 - p
 - rho
-- Ma - or a ??? #TODO:
+- Ma - or a (ideally) ??? #TODO:
 - U
 
 ### Structual Model - from ALTAIR HYPERMESH NASTRAN:
@@ -15,14 +16,15 @@ The following files:
 
 
 ## Running this program:
+This file takes input in the form of a python module file. 
+
+In the directory this file is in:  #python3 -m src <filename of a desired python module file without the .py>
+
+The inputs folder contains the input files where the user can update the inputs the program uses.
 
 
 
-> python3 -m 
-
-
-
-# documentation
+# Documentation
 
 ## Project Goal:
 Given a supersonic rocket with chosen fin dimensions, solve the divergence and flutter speed
@@ -59,49 +61,39 @@ Velocity
 
 Initially tried to use NASTRAN:
 - MSC NASTRAN did not have flutter accessible in the student version
-- Altair Hypermesh (NASTRAN) did not have supersonic aero
+- Altair Hypermesh (NASTRAN) did not have a supersonic aero model available
 
 Therefore we need to work at a lower level: 
 New approach "weakly coupled solver" - using [5] as a guide.
-This method requires Harmonics and a CFD Simulation
+This method requires a Harmonics and a CFD Simulation
+
+
+## Inputs:
 
    ## Harmonics Simulation
    - Altair Student edition is easy for me to obtain as a student. It is the least restrictive and NASTRAN files are easy to parse.
+   - (also can get the mass and stiffness matrices from the same program)
 
    ## CFD Simulation
-   - OpenFOAM, see [8],[9],[10]
-
-   ### My toolkit docker setup:
-   |-home
-      |-rocket-cfd
-         |-openfoam-data
-         |-openfoam-dockerfiles
-
-   Running the docker container:
-   > sudo docker container run -ti --rm -v $HOME/rocket-cfd-toolkit/openfoam-data:/data -w /data openfoam:latest
+   - OpenFOAM, see [8],[9],[10] for toolkit used to assist with setting up simulations
 
 
    ## Flutter Sol:
    This repository
-   -Copy results files from Harmonics and CFD Simulations into the correct dir <!-- TODO: DEFINE -->
 
 
-Using a virtual environment to stop this from interfering w other python projects:
+<!-- Using a virtual environment to stop this from interfering w other python projects:
 Enter virtual env with 
 > source venv/bin/activate
-Exit with - deactivate
-
-
-
-
-
+Exit with - deactivate -->
 
 
 ## Structural Model🗼
+From OPTISTRUCT
 
 ### Fuselage and Nosecone 
 ???
-modeled as rigid - aluminum tube
+can we treat as rigid?
 
 ### Fin 
 is being loaded in:
@@ -115,22 +107,22 @@ Assuming small deformations (linear) to start
 
 
 ## Mass Model ⚖️
+From OPTISTRUCT
 
-Gmsh???
 
-## Aerodynamic Model ✈️
+## Aerodynamic Model ✈️ - See [5]
+Unsteady Aerodynamic Model created with local piston theory and steady CFD results from method in [5]
 
-Using USU Aerolab MachLine: https://github.com/usuaero/MachLine
 
 
 ## Interpolation ➰
-https://docs.pyvista.org/examples/01-filter/interpolate
+will likely use this - https://docs.pyvista.org/examples/01-filter/interpolate
 
 
 ## Other Assumptions and Notes 📝
 - want to recreate experimental data to validate our understanding/methods
 - likely want to do a mesh convergence study on model
-- temperature effects?
+- temperature effects? - probably out of scope given ideal timeline but an understanding of the level of impact and how that would impact the flutter speed would be useful
 
 ## Solver 📝
 
