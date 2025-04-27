@@ -1,4 +1,28 @@
 # rocket-flutter-speed-analysis 🚀
+A losely coupled flutter speed calculator built using open-source and software available to students (from a student license).
+
+## Required Program Inputs:
+### CFD - from Openfoam:
+The following files:
+- p
+- rho
+- Ma - or a ??? #TODO:
+- U
+
+### Structual Model - from ALTAIR HYPERMESH NASTRAN:
+- natural frequencies
+- mode shapes
+
+
+## Running this program:
+
+
+
+> python3 -m 
+
+
+
+# documentation
 
 ## Project Goal:
 Given a supersonic rocket with chosen fin dimensions, solve the divergence and flutter speed
@@ -38,18 +62,39 @@ Initially tried to use NASTRAN:
 - Altair Hypermesh (NASTRAN) did not have supersonic aero
 
 Therefore we need to work at a lower level: 
-- New approach "weakly coupled solver"
-Chosen to use existing aero and structural models (I dont want to code everything from scratch my bad!)
+New approach "weakly coupled solver" - using [5] as a guide.
+This method requires Harmonics and a CFD Simulation
+
+   ## Harmonics Simulation
+   - Altair Student edition is easy for me to obtain as a student. It is the least restrictive and NASTRAN files are easy to parse.
+
+   ## CFD Simulation
+   - OpenFOAM, see [8],[9],[10]
+
+   ### My toolkit docker setup:
+   |-home
+      |-rocket-cfd
+         |-openfoam-data
+         |-openfoam-dockerfiles
+
+   Running the docker container:
+   > sudo docker container run -ti --rm -v $HOME/rocket-cfd-toolkit/openfoam-data:/data -w /data openfoam:latest
+
+
+   ## Flutter Sol:
+   This repository
+   -Copy results files from Harmonics and CFD Simulations into the correct dir <!-- TODO: DEFINE -->
+
 
 Using a virtual environment to stop this from interfering w other python projects:
-Enter virtual env with - source venv/bin/activate
+Enter virtual env with 
+> source venv/bin/activate
 Exit with - deactivate
 
 
-_old
-1) Start with flight path and fin geometry from flight sim / analysis
-2) Build Structural/aero model
-3) Run a SOL 103 
+
+
+
 
 
 ## Structural Model🗼
@@ -78,8 +123,8 @@ Gmsh???
 Using USU Aerolab MachLine: https://github.com/usuaero/MachLine
 
 
-## Splines ➰
-
+## Interpolation ➰
+https://docs.pyvista.org/examples/01-filter/interpolate
 
 
 ## Other Assumptions and Notes 📝
@@ -110,17 +155,18 @@ TODO: try first tutorial to build an understanding of how all the pieces fit tog
 
 ## Sources and Citations:
 
-_old
+
 | Number | Source                            | Contribution / Use Description                 | Link to Source    |
 |--------|-----------------------------------|------------------------------------------------|-------------------|
-| [1]    | MSC Nastran Aeroelastic Analysis User Guide | Explains solver                      | https://help-be.hexagonmi.com/bundle/MSC_Nastran_2023.1_Aeroelastic_Analysis_User_Guide/raw/resource/enus/MSC_Nastran_2023.1_Aeroelastic_Analysis_User_Guide.pdf |
+| [1]    | Wright and Cooper Aeroelasticity Textbook | Starting point for learning theory     |                   |
 | [2]    | AEROELASTIC INVESTIGATION OF A MISSILE CONFIGURATION | Example of MSC Nastran for flutter analysis of a similar vehicle                   | https://www.foi.se/rest-api/report/FOI-R--0474--SE |
 | [3]    | EXPERIMENTAL AND CALCULATED RESULTS OF SUPERSONIC FLUTTER CHARACTERISTICS OF A LOW ASPECT-RATIO FLAT-PLATE SURFACES | Looks Promising for a validation case, no body just fin | https://arc.aiaa.org/doi/10.2514/6.1967-1340 |
 | [4]    | A Sensitivity Investigation on the Aeroelastic Dynamic Stability of Slender Spinning Sounding Rockets | shows nastran model setup and validation, basically what we want to do | doi: 10.5028/jatm.v5i1.192 |
-| [5]    | MSC Nastran online card desc | Understanding model setup | https://nexus.hexagon.com/documentationcenter/en-US/bundle/MSC_Nastran_2021/page/Nastran_Combined_Book/qrg/bulk_data/TOC.Bulk.Data.Entry.xhtml |
-| [6]    | Ata engineering flutter tutorial | useful overview | https://www.youtube.com/watch?v=GjBXsR6SSLY&t=165s |
-| [7]    | Introduction to aircraft aeroelasticity and loads | good resource for learning flutter | book |
-| [8]    | Pynastran github | library likely useful for pre/postprocessing but also has an example model library | https://github.com/SteveDoyle2/pyNastran/tree/main/models |
-
+| [5]    | Supersonic Flutter Analysis Based on a Local Piston Theory | This paper presents the method we will try to use | https://www.researchgate.net/publication/245426315_Supersonic_Flutter_Analysis_Based_on_a_Local_Piston_Theory |
+| [6]    | Piston Theory-A New Aerodynamic Tool for the Aeroelastician | used to understand some of the aero theory in [5] | https://arc.aiaa.org/doi/abs/10.2514/8.3740?journalCode=jans |
+| [7]    | Ata engineering flutter tutorial | useful overview | https://www.youtube.com/watch?v=GjBXsR6SSLY&t=165s |
+| [8]    | Toolchain for Aerodynamic Characterization of a Rocket During Ascent using OpenFOAM | OpenFOAM toolchain the cfd in this project is built on |https://github.com/WyllDuck/OpenFOAM-ToolChain-for-Rocket-Aerodynamic-Analysis |
+| [9]    | OpenFOAM-ToolChain-helperFunctions | Helper functions from the same author as [8] for the toolchain | https://github.com/WyllDuck/OpenFOAM-ToolChain-helperFunctions/tree/30bf81273756a84d419085d8e594a9b08d46e7dd |
+| [10]   | Docker instructions for [8],[9] | Setup CFD Toolkit | https://github.com/jakobhaervig/openfoam-dockerfiles |
 
 <!-- This is a comment in a Markdown file (not rendered) --> 

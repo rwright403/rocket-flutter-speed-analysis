@@ -1,0 +1,23 @@
+from paraview.simple import *
+
+# Path to your .vtk file
+vtk_path = "./half_wing_input/results/half_wing_wake.vtk"
+
+# Load the file
+vtk_data = OpenDataFile(vtk_path)
+
+# Show it in the render view
+render_view = GetActiveViewOrCreate('RenderView')
+display = Show(vtk_data, render_view)
+ColorBy(display, None)  # Optional: turn off scalar coloring
+
+# Set camera for iso view
+"""
+render_view.CameraPosition = [1, 1, 1]  # Camera position (x, y, z)
+render_view.CameraFocalPoint = [0, 0, 0]  # Where the camera is looking at
+render_view.CameraViewUp = [0, 1, 0]  # Which direction is "up" in your view
+"""
+
+# Render the scene
+while(1==1):
+    Render()

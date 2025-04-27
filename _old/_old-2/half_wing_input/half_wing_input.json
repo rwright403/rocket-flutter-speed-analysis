@@ -1,0 +1,38 @@
+{
+    "flow": {
+        "freestream_velocity" : [ 100.0, 0.0, 10.0 ],
+        "freestream_mach_number" : 0.0
+    },
+    "geometry": {
+        "file": "half_wing_input/half_wing_right.vtk",
+        "mirror_about": "xz",
+        "reference": {
+            "area": 1.0
+        },
+        "wake_model" : {
+            "wake_present" : true
+        }
+    },
+    "solver": {
+        "formulation": "dirichlet-morino"
+    },
+    "post_processing" : {
+        "pressure_rules": {
+            "incompressible": true
+        },
+        "subsonic_pressure_correction": {
+            "prandtl-glauert": false,
+            "karman-tsien": false,
+            "laitone": false
+        },
+        "pressure_for_forces": "prandtl-glauert"
+    },
+    "output": {
+        "body_file" : "./half_wing_input/results/half_wing_right.vtk",
+        "wake_file" : "./half_wing_input/results/half_wing_wake.vtk",
+        "control_point_file" : "./half_wing_input/results/half_wing_right_control_points.vtk",
+        "mirrored_body_file" : "./half_wing_input/results/half_wing_left.vtk",
+        "mirrored_control_point_file" : "./half_wing_input/results/half_wing_left_control_points.vtk",
+        "report_file" : "./half_wing_input/results/report.json"
+    }
+}
