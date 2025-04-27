@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from src.utils.time_feat_g_eazy_and_olivver_the_kid import runtime
 
 from concurrent.futures import ThreadPoolExecutor
+from tqdm import tqdm  # optional for progress bar
 
 @dataclass
 class flowfield_point:
@@ -16,21 +17,35 @@ class flowfield_point:
 
     
 
+
 def parse(cfd_mesh, oml_mesh):
     surface_flowfield_points = {}
 
-    for point in oml_mesh.points:
+
+    def process_point(point):            #for point in oml_mesh.points:
 
         with runtime("one cell"):
             cell_index = cfd_mesh.find_containing_cell(point) #this is really slow
             elements = cfd_mesh.point_neighbors(cell_index)
 
-            for idx in elements:
-                cell = cfd_mesh.get_cell(idx)
-                surface_flowfield_points[idx] = flowfield_point(cell.center,cfd_mesh.cell_data['p'],cfd_mesh.cell_data['rho'],cfd_mesh.cell_data['Ma'],cfd_mesh.cell_data['U'])
+            result = [] #dict not thread safe
+            def process_point(point):
+                with runtime("one cell"):
+                    for idx in elements:
+                        cell = cfd_mesh.get_cell(idx)
+                        flowfield_pt = flowfield_point(cell.center,cfd_mesh.cell_data['p'],cfd_mesh.cell_data['rho'],cfd_mesh.cell_data['Ma'],cfd_mesh.cell_data['U'])
+                        result.append(idx,flowfield_pt)
+                
+                    return result
+    # Launch threading
+    with ThreadPoolExecutor() as executor:
+        # tqdm for progress tracking
+        futures = list(tqdm(executor.map(process_point, oml_mesh.points), total=len(oml_mesh.points)))
 
-            break
-
+    # Collect results
+    for cellflowfields in futures:
+        for idx, fp in cellflowfields:
+            surface_flowfield_points[idx] = fp  # safe, single-threaded write
     return surface_flowfield_points
 
 """
