@@ -1,0 +1,26 @@
+ Program execution started at Sun Apr 27 22:26:39 2025    
+	process id = 23972
+ MKL : Intel(R) oneAPI Math Kernel Library Version 2022.2-Product Build 20220804 for Intel(R) 64 architecture applications
+ Command line arguments:
+ tc3-v3-sol-103.fem
+ -aif
+  
+ Expanding dictionary from 0 to 1111
+
+TIME SPENT IN MODULE :    READ;  CPU=       0.02;  WALL=      0.07
+
+
+START RUNNING MODULE :  PREPR1 ...
+
+TIME SPENT IN MODULE :  PREPR1;  CPU=       0.00;  WALL=      0.02
+
+
+START RUNNING MODULE :  DESIGN ...
+
+TIME SPENT IN MODULE :  DESIGN;  CPU=       0.00;  WALL=      0.01
+
+  
+ OptiStruct ERROR: 1.
+ A fatal error has occurred in your model. Please refer to the .out
+ file to obtain more information on how to correct it.
+  

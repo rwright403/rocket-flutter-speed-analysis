@@ -1,0 +1,152 @@
+ ************************************************************************
+ **                                                                    **
+ **                                                                    **
+ **                     Altair OptiStruct(TM) 2025                     **
+ **                                                                    **
+ **             Advanced Engineering Analysis, Design and              **
+ **        Optimization Software from Altair Engineering, Inc.         **
+ **                                                                    **
+ **   OptiStruct includes an enhanced proprietary version of NASTRAN   **
+ **                                                                    **
+ **                                                                    **
+ **                 Windows 10  (Build 9200)  RWRIGHT2                 **
+ **           20 CPU:  13th Gen Intel(R) Core(TM) i9-13900H            **
+ **                    13003 MB RAM,  50825 MB swap                    **
+ **                                                                    **
+ ** Build: 1246461uwn33xxx_Ce64RB6s8UH14M-000  46004004000000004000    **
+ ************************************************************************
+ **  COPYRIGHT (C) 1996-2024                 Altair Engineering, Inc.  **
+ ** All Rights Reserved.  Copyright notice does not imply publication. **
+ **         Contains trade secrets of Altair Engineering, Inc.         **
+ ** Decompilation or disassembly of this software strictly prohibited. **
+ ************************************************************************
+ 
+  
+ *** OptiStruct defaults set from:
+   install config file: C:/Program Files/Altair/2025/hwsolvers/optistruct.cfg.
+  
+  
+ NOTE # 9199
+ MSGLMT=STRICT is active, all messages will be printed unless there is
+ a subsequent MSGLMT definition to limit error or warning messages.
+ You can also suppress some less important warning messages by use of
+  MSGLMT=BRIEF or UNREF (in config file or in the input data).
+  
+ NOTE # 1929
+ Created RAM scratch area: total size 10 MB.
+  
+ ***************************** INFORMATION ******************************
+ * For OptiStruct useful guidelines and tips (Nonlinear analysis
+ * convergence, the model validity check etc...), go to the URL:
+ * https://help.altair.com/hwsolvers/os/topics/solvers/os/debugging.htm
+ ************************************************************************
+  
+  
+  
+ This is job 1 of 1 in collection ( 2025-04-27T21:15:41 )
+ created by: ( HM11.0 )
+  
+  
+  
+  THE FOLLOWING ERROR MESSAGE WAS RETRIEVED FROM THE LICENSE SERVER
+ Altair License Manager: License error
+ 
+Feature(s): GlobalZoneAM, HyperWorks, HWOptiStructFEA
+Error Code: 9
+Error Description:
+Feature not found
+ 
+Feature: OptiStructFEA
+Error Code: 6
+Error Description:
+[LOCAL] C:\Users\rwrig\AppData\Local\.altair_licensing\rwright2\licenses\LS8SI-TICEV-PC3FH-ZIQ7R.lic - (Err: 9) Feature not found
+[LOCAL] C:/Program Files/Altair/2025/security/altair_lic.dat - (Err: 6) Unable to read file
+ 
+License Path: C:/Program Files/Altair/2025/hwdesktop\security\altair_lic.dat;C:\Users\rwrig\AppData\Local\.altair_licensing\rwright2\licenses;C:/Program Files/Altair/2025/security/altair_lic.dat
+ 
+Altair Managed Licensing: License error
+ 
+Feature: OptiStructFEA
+Error Code: -40
+Error Description:
+[LicID -1] (Err: -40) While checking out feature "GlobalZoneAM": Requested feature name was not found in licenses
+ 
+Altair License Manager: License error
+ 
+Feature(s): GlobalZoneAM, OptiStructFEA
+Error Code: 9
+Error Description:
+Feature not found
+ 
+Feature: OptiStructFEA
+Error Code: 6
+Error Description:
+[LOCAL] C:\Users\rwrig\AppData\Local\.altair_licensing\rwright2\licenses\LS8SI-TICEV-PC3FH-ZIQ7R.lic - (Err: 9) Feature not found
+[LOCAL] C:/Program Files/Altair/2025/security/altair_lic.dat - (Err: 6) Unable to read file
+ 
+License Path: C:/Program Files/Altair/2025/hwdesktop\security\altair_lic.dat;C:\Users\rwrig\AppData\Local\.altair_licensing\rwright2\licenses;C:/Program Files/Altair/2025/security/altair_lic.dat
+ 
+Altair Managed Licensing: License error
+ 
+Feature: OptiStructFEA
+Error Code: -40
+Error Description:
+[LicID -1] (Err: -40) While checking out feature "GlobalZoneAM": Requested feature name was not found in licenses
+  
+  
+  
+  THE FOLLOWING ERROR MESSAGE WAS RETRIEVED FROM THE LICENSE SERVER
+ Altair License Manager: License error
+ 
+Feature(s): GlobalZoneAM, HyperWorks, HWOptiStruct
+Error Code: 9
+Error Description:
+Feature not found
+ 
+Feature: OptiStruct
+Error Code: 6
+Error Description:
+[LOCAL] C:\Users\rwrig\AppData\Local\.altair_licensing\rwright2\licenses\LS8SI-TICEV-PC3FH-ZIQ7R.lic - (Err: 9) Feature not found
+[LOCAL] C:/Program Files/Altair/2025/security/altair_lic.dat - (Err: 6) Unable to read file
+ 
+License Path: C:/Program Files/Altair/2025/hwdesktop\security\altair_lic.dat;C:\Users\rwrig\AppData\Local\.altair_licensing\rwright2\licenses;C:/Program Files/Altair/2025/security/altair_lic.dat
+ 
+Altair Managed Licensing: License error
+ 
+Feature: OptiStruct
+Error Code: -40
+Error Description:
+[LicID -1] (Err: -40) While checking out feature "GlobalZoneAM": Requested feature name was not found in licenses
+ 
+Altair License Manager: License error
+ 
+Feature(s): GlobalZoneAM, OptiStruct
+Error Code: 9
+Error Description:
+Feature not found
+ 
+Feature: OptiStruct
+Error Code: 6
+Error Description:
+[LOCAL] C:\Users\rwrig\AppData\Local\.altair_licensing\rwright2\licenses\LS8SI-TICEV-PC3FH-ZIQ7R.lic - (Err: 9) Feature not found
+[LOCAL] C:/Program Files/Altair/2025/security/altair_lic.dat - (Err: 6) Unable to read file
+ 
+License Path: C:/Program Files/Altair/2025/hwdesktop\security\altair_lic.dat;C:\Users\rwrig\AppData\Local\.altair_licensing\rwright2\licenses;C:/Program Files/Altair/2025/security/altair_lic.dat
+ 
+Altair Managed Licensing: License error
+ 
+Feature: OptiStruct
+Error Code: -40
+Error Description:
+[LicID -1] (Err: -40) While checking out feature "GlobalZoneAM": Requested feature name was not found in licenses
+  
+  No Available License
+  
+************************************************************************
+  
+ OptiStruct ERROR: 1.
+ A fatal error has occurred in your model. Please refer to the .out
+ file to obtain more information on how to correct it.
+  
+  
+************************************************************************

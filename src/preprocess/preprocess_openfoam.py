@@ -5,7 +5,6 @@ from dataclasses import dataclass
 from src.utils.time_feat_g_eazy_and_olivver_the_kid import runtime
 
 from concurrent.futures import ThreadPoolExecutor
-from tqdm import tqdm  # optional for progress bar
 
 @dataclass
 class flowfield_point:
@@ -19,6 +18,10 @@ class flowfield_point:
 
 
 def parse(cfd_mesh, oml_mesh):
+    return 0
+
+
+    """
     surface_flowfield_points = {}
 
 
@@ -48,9 +51,10 @@ def parse(cfd_mesh, oml_mesh):
             surface_flowfield_points[idx] = fp  # safe, single-threaded write
     return surface_flowfield_points
 
-"""
+
 preprocess results from openfoam to create a surface flow field #TODO: add interpolation here?
 """
+
 class preprocess_openfoam():
     def __init__(self, program_input):
     
