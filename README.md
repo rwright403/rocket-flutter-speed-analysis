@@ -63,7 +63,7 @@ Initially tried to use NASTRAN:
 - MSC NASTRAN did not have flutter accessible in the student version
 - Altair Hypermesh (NASTRAN) did not have a supersonic aero model available
 
-Therefore we need to work at a lower level: 
+Therefore we need to work at a lower level and build the flutter solver ourselves: 
 New approach "weakly coupled solver" - using [5] as a guide.
 This method requires a Harmonics and a CFD Simulation
 
@@ -127,11 +127,11 @@ will likely use this - https://docs.pyvista.org/examples/01-filter/interpolate
 ## Solver 📝
 
 
-https://fenicsproject.org/ 
+potentially ~ https://fenicsproject.org/ 
 
 
-## Postprocessing Tools 🛠️🐍
-
+## Postprocessing 🛠️🐍
+none - if it has a gui are you really innovating?
 
 
 ## Validation ✅
@@ -160,5 +160,8 @@ TODO: try first tutorial to build an understanding of how all the pieces fit tog
 | [8]    | Toolchain for Aerodynamic Characterization of a Rocket During Ascent using OpenFOAM | OpenFOAM toolchain the cfd in this project is built on |https://github.com/WyllDuck/OpenFOAM-ToolChain-for-Rocket-Aerodynamic-Analysis |
 | [9]    | OpenFOAM-ToolChain-helperFunctions | Helper functions from the same author as [8] for the toolchain | https://github.com/WyllDuck/OpenFOAM-ToolChain-helperFunctions/tree/30bf81273756a84d419085d8e594a9b08d46e7dd |
 | [10]   | Docker instructions for [8],[9] | Setup CFD Toolkit | https://github.com/jakobhaervig/openfoam-dockerfiles |
+| [11]   | OS-T: 1110 Modal Analysis Setup | Altair Modal Analysis Setup |https://2021.help.altair.com/2021/hwsolvers/os/topics/solvers/os/modal_analysis_setup_r.htm
+| [12]   | Altair community fourum "How do i export stiffness and mass matrices from Optistruct?" | | https://community.altair.com/discussion/25732/how-do-i-export-stiffness-and-mass-matrices-from-optistruct|
+
 
 <!-- This is a comment in a Markdown file (not rendered) --> 
