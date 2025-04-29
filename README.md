@@ -1,5 +1,5 @@
 # rocket-flutter-speed-analysis 🚀
-A losely coupled flutter speed calculator built using open-source and software available to students (from a student license).
+A loosely coupled flutter speed calculator built using open-source and software available to students (from a student license).
 Based on the method created by [5]
 
 ## Required Program Inputs:

@@ -1,25 +1,64 @@
+import pyNastran
 from pyNastran.bdf.bdf import BDF
 from pyNastran.op2.op2 import OP2
-from pyNastran.op4.op4 import OP4, read_op4
+from pyNastran.op4.op4 import OP4
 
-from src.utils.time_feat_g_eazy_and_olivver_the_kid import runtime
+from utils.utils import runtime
 
 class preprocess_nastran():
     def __init__(self, program_input):
 
+        ## I/O
+        if not program_input.nastran_bdf_path.exists():
+            raise FileNotFoundError(f"Input BDF file not found: {program_input.nastran_bdf_path}")
+        self.bdf_path = program_input.nastran_bdf_path
+
+        if not program_input.nastran_op2_path.exists():
+            raise FileNotFoundError(f"Input BDF file not found: {program_input.nastran_op2_path}")
+        self.op2_path = program_input.nastran_op2_path
+
+        if not program_input.nastran_op2_path.exists():
+            raise FileNotFoundError(f"Input BDF file not found: {program_input.nastran_op2_path}")
+        self.op2_path = program_input.nastran_op2_path
+
+
+        ## Attribute declaration
+
+     
+    def read_and_parse(self):
+
+        ## Read
         with runtime("read bdf"):
             model = BDF()
-            model.read_bdf(program_input.nastran_bdf_path)
+            model.read_bdf(self.bdf_path)
             
         with runtime("read op2"):
             results = OP2()
-            results.read_op2(program_input.nastran_op2_path)
+            results.read_op2(self.op2_path) #, build_dataframe=True)
+
+        with runtime("read op4"):
+            op4 = OP4()
+            k_stiff = op4.read_op4(self.op4_path, matrix_names=['KGG'])
+            m_mass = op4.read_op4(self.op4_path, matrix_names=['MGG'])
+
+        ## Parse
+
+            print(type(k_stiff))
+
+            for key in k_stiff:
+                print("key! ", key)
+
+            print(k_stiff['KGG'].data)
+
+            eig1 = results.eigenvectors[1]
+            
+            modes = eig1.modes #modes
+            nat_freq = eig1.mode_cycles #natural frequencies
+            for m in modes:
+                print("mode: ", m, nat_freq[m-1])
+
             print(results.get_op2_stats())
 
-            print("everything printed is the value! ", results.eigenvectors[1])
 
-    """
-        with runtime("read op4"):
-            k_stiff = read_op4(program_input.nastran_op4_path, matrix_names=['K'])
-            m_mass = read_op4(program_input.nastran_op4_path, matrix_names=['M'])
-    """
+            #TODO: PRINT MODE SHAPES *****, how to get elem norm vec???
+        
