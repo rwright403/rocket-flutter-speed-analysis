@@ -1,23 +1,24 @@
 import pyNastran
+from pathlib import Path
 from pyNastran.bdf.bdf import BDF
 from pyNastran.op2.op2 import OP2
 from pyNastran.op4.op4 import OP4
 
-from utils.utils import runtime
+from src.utils.utils import runtime
 
 class preprocess_nastran():
     def __init__(self, program_input):
 
         ## I/O
-        if not program_input.nastran_bdf_path.exists():
+        if not Path(program_input.nastran_bdf_path).exists():
             raise FileNotFoundError(f"Input BDF file not found: {program_input.nastran_bdf_path}")
         self.bdf_path = program_input.nastran_bdf_path
 
-        if not program_input.nastran_op2_path.exists():
+        if not Path(program_input.nastran_op2_path).exists():
             raise FileNotFoundError(f"Input BDF file not found: {program_input.nastran_op2_path}")
         self.op2_path = program_input.nastran_op2_path
 
-        if not program_input.nastran_op2_path.exists():
+        if not Path(program_input.nastran_op2_path).exists():
             raise FileNotFoundError(f"Input BDF file not found: {program_input.nastran_op2_path}")
         self.op2_path = program_input.nastran_op2_path
 
