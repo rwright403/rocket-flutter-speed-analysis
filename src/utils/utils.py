@@ -1,28 +1,7 @@
-
-
-from contextlib import contextmanager
 import time
+import numpy as np
+from contextlib import contextmanager
 
-
-### need abstractions for:
-"""
-- flowfield point:
-
-@dataclass
-class flowfield_point:
-    pos : np.ndarray
-    p : float
-    rho : float
-    Ma : float #prefer a
-    u : np.ndarray
-
-- modal results 
-???
-
-- is pynastran .BDF abstraction "nice" for what we are doing here? rn i dont think so but need to do more learning
-
-
-"""
 def _print_stars():
     print("\n" + "*" * 20 + "\n")
 
