@@ -1,0 +1,278 @@
+ ************************************************************************
+ **                                                                    **
+ **                                                                    **
+ **                     Altair OptiStruct(TM) 2025                     **
+ **                                                                    **
+ **             Advanced Engineering Analysis, Design and              **
+ **        Optimization Software from Altair Engineering, Inc.         **
+ **                                                                    **
+ **   OptiStruct includes an enhanced proprietary version of NASTRAN   **
+ **                                                                    **
+ **                                                                    **
+ **               Windows 10  (Build 9200)  ADAMS-LAPPY                **
+ **          16 CPU:  AMD Ryzen 7 5700U with Radeon Graphics           **
+ **                    6167 MB RAM,  19434 MB swap                     **
+ **                                                                    **
+ ** Build: 1246461uwn33xxx_Ce64RB6s8UH14M-000  46004004000000004000    **
+ ************************************************************************
+ **  COPYRIGHT (C) 1996-2024                 Altair Engineering, Inc.  **
+ ** All Rights Reserved.  Copyright notice does not imply publication. **
+ **         Contains trade secrets of Altair Engineering, Inc.         **
+ ** Decompilation or disassembly of this software strictly prohibited. **
+ ************************************************************************
+ 
+  
+ *** OptiStruct defaults set from:
+   install config file: C:/PROGRA~1/Altair/2025/hwsolvers/optistruct.cfg.
+  
+  
+ NOTE # 9199
+ MSGLMT=STRICT is active, all messages will be printed unless there is
+ a subsequent MSGLMT definition to limit error or warning messages.
+ You can also suppress some less important warning messages by use of
+  MSGLMT=BRIEF or UNREF (in config file or in the input data).
+  
+ *** WARNING # 2069
+ Incorrect line 295 in file tc3-v3-sol-103.fem (skipped):
+  "<Altair_Model_Export/>".
+  
+ NOTE # 1929
+ Created RAM scratch area: total size 10 MB.
+  
+ ***************************** INFORMATION ******************************
+ * For OptiStruct useful guidelines and tips (Nonlinear analysis
+ * convergence, the model validity check etc...), go to the URL:
+ * https://help.altair.com/hwsolvers/os/topics/solvers/os/debugging.htm
+ ************************************************************************
+  
+  
+ 
+
+************************************************************************
+
+OPTIMIZATION FILE AND PARAMETER INFORMATION :
+---------------------------------------------
+
+  FEM model file               : tc3-v3-sol-103.fem
+  Output files prefix          : tc3-v3-sol-103
+  Model read from files:
+ (*1)	    tc3-v3-sol-103.fem
+
+************************************************************************
+
+ 
+
+************************************************************************
+
+FINITE ELEMENT MODEL DATA INFORMATION :
+---------------------------------------
+
+  Total # of Grids (Structural)        :        56
+  Total # of Elements                  :        42
+  Total # of Local Coordinate Systems  :         2
+  Total # of Degrees of Freedom        :       144
+  (Structural)
+  Total # of Non-zero Stiffness Terms  :      1656
+
+ 
+  Element Type Information
+  ------------------------
+
+   CQUAD4   Elements   :       42     
+
+  Load and Boundary Information
+  -----------------------------
+
+   SPC   Sets        :         1
+
+  Material and Property Information
+  ---------------------------------
+
+   PSHELL  Cards      :         1
+   Amongst these, number of PSHELL with membrane only data =          1
+   MAT1    Cards      :         1
+
+************************************************************************
+
+ 
+
+************************************************************************
+
+OPTIMIZATION PROBLEM PARAMETERS :
+---------------------------------
+
+ NO DESIGN MATERIAL OR DESIGN VARIABLES FOUND  : ANALYSIS ONLY
+
+   ---------------------------
+   Frequency Subcase Summary :
+   ---------------------------
+
+   ----------   --------  ---------------------  --------
+   Subcase ID    SPC ID   Preloading Subcase ID   MODE # 
+   ----------   --------  ---------------------  --------
+          1            1                               10
+   ----------   --------  ---------------------  --------
+
+   Run Type                        :   Analysis Only
+   Run at location                 : C:/Users/AdamC/Downloads/
+   Scratch file directory          : C:/Users/AdamC/Downloads/
+                                     Free space:   322.093 GB
+   Number of CPU processors        :          1
+
+
+************************************************************************
+
+ 
+
+************************************************************************
+
+MEMORY ESTIMATION INFORMATION :
+-------------------------------
+
+ Solver Type is:  Sparse-Matrix Solver
+                  Direct Method
+                  Lanczos Eigenvalue Extraction for Structure
+ 
+ Static Memory (RAM) Allocated in Preprocessor           :     800 MB
+   In addition a ramdisk area was allocated in memory    :      10 MB
+ MUMPS Solver will Run In-Core with Estimated Memory     :       0 MB
+ Estimated Total Memory (RAM)                            :     810 MB
+ 
+ Estimated Memory (RAM) for Out-of-Core Solution         :       2 MB
+ Estimated Memory (RAM) for In-Core Solution             :       2 MB
+ 
+DISK SPACE ESTIMATION INFORMATION :
+-----------------------------------
+
+ Estimated Disk Space for Output Data Files              :       3 MB
+ Estimated Scratch Disk Space for In-Core Solution       :       0 MB
+ Estimated Scratch Disk Space for Out-of-Core Solution   :       0 MB
+
+************************************************************************
+
+
+BEGINNING ANALYSIS SOLUTION ....
+
+
+************************************************************************
+
+ANALYSIS RESULTS :
+------------------
+
+  
+ITERATION   0
+  
+ List of Auto-SPC d.o.f.s for loadcase   1
+ Total number of Auto-SPC d.o.f.s =   48
+  
+ 		------------------------------
+ 		  Grid No.         Component
+ 		------------------------------
+                          9         2
+                         10         2
+                         11         2
+                         12         2
+                         13         2
+                         14         2
+                         15         2
+                         16         2
+                         17         2
+                         18         2
+                         19         2
+                         20         2
+                         21         2
+                         22         2
+                         23         2
+                         24         2
+                         25         2
+                         26         2
+                         27         2
+                         28         2
+                         29         2
+                         30         2
+                         31         2
+                         32         2
+                         33         2
+                         34         2
+                         35         2
+                         36         2
+                         37         2
+                         38         2
+                         39         2
+                         40         2
+                         41         2
+                         42         2
+                         43         2
+                         44         2
+                         45         2
+                         46         2
+                         47         2
+                         48         2
+                         49         2
+                         50         2
+                         51         2
+                         52         2
+                         53         2
+                         54         2
+                         55         2
+                         56         2
+ 		------------------------------
+  
+  
+ (Scratch disk space usage for starting iteration = 1 MB)
+(Running in-core solution)
+
+Volume                              =  5.44500E-05   Mass     =  9.80100E-02
+
+                                         Generalized  Generalized
+Subcase Mode   Frequency    Eigenvalue   Stiffness       Mass
+      1    1   3.783932E+03 5.652576E+08 5.652576E+08 1.000000E+00
+      1    2   8.015662E+03 2.536521E+09 2.536521E+09 1.000000E+00
+      1    3   9.109648E+03 3.276143E+09 3.276143E+09 1.000000E+00
+      1    4   1.474678E+04 8.585269E+09 8.585269E+09 1.000000E+00
+      1    5   1.515659E+04 9.069072E+09 9.069072E+09 1.000000E+00
+      1    6   1.646583E+04 1.070353E+10 1.070353E+10 1.000000E+00
+      1    7   1.885588E+04 1.403632E+10 1.403632E+10 1.000000E+00
+      1    8   1.947514E+04 1.497341E+10 1.497341E+10 1.000000E+00
+      1    9   2.159744E+04 1.841468E+10 1.841468E+10 1.000000E+00
+      1   10   2.248414E+04 1.995778E+10 1.995778E+10 1.000000E+00
+
+
+************************************************************************
+  
+ ANALYSIS COMPLETED.
+  
+
+************************************************************************
+
+RESOURCE USAGE INFORMATION
+--------------------------
+
+ MAXIMUM MEMORY USED                                       800 MB
+   IN ADDITION      1 MB MEMORY WAS ALLOCATED FOR TEMPORARY USE
+   IN ADDITION     10 MB RAMDISK AREA WAS ALLOCATED IN MEMORY
+ MAXIMUM DISK SPACE USED                                     1 MB
+   INCLUDING DISK SPACE FOR MUMPS                            0 MB
+
+************************************************************************
+
+
+************************************************************************
+
+COMPUTE TIME INFORMATION
+------------------------
+
+ EXECUTION STARTED                         Tue Apr 29 21:36:23 2025    
+ EXECUTION COMPLETED                       Tue Apr 29 21:36:25 2025    
+ ELAPSED TIME                                         00:00:01
+ CPU TIME                                             00:00:02
+
+************************************************************************
+
+  
+                        ***** END OF REPORT *****
+  
+ For OptiStruct Community Forum, go to the URL:
+ http://www.altair.com/optistruct-community
+ For Altair Community Knowledge Base, go to the URL:
+ http://www.altair.com/knowledge
