@@ -1,6 +1,6 @@
 import argparse
 
-from src import sol_flutter
+from . import sol_flutter_bound
 
 if __name__ == "__main__":
     # Parse command-line arguments
@@ -10,4 +10,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     # Run the program with the specified input file
-    sol_flutter.run(args.input_file)
+    sol_flutter_bound.run(args.input_file)

@@ -25,10 +25,11 @@ def run(input_file):
 
     # how to abstract these best?
     nas_data = preprocess_nastran(program_input)
-    foam_data = preprocess_openfoam(program_input)
+    nas_data.read_and_parse()
+    #foam_data = preprocess_openfoam(program_input)
 
-    eig = flutter_eig(nas_data, foam_data)
+    #eig = flutter_eig(nas_data, foam_data)
 
-    postprocess(eig, foam_data.freestream_V, 1)
+    #postprocess(eig, foam_data.freestream_V, 1)
 
     print("done")

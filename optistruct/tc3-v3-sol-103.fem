@@ -6,6 +6,8 @@ SUBCASE 1
   ANALYSIS MODES
   SPC = 1
   METHOD(STRUCTURE) 1   $$ Method card specifying structural analysis
+  PARAM,POST,-1
+  PARAM,EXTOUT,OP4
 BEGIN BULK
 
 CORD2C         1        0.0     0.0     0.0     0.0     0.0     1.0     

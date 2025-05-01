@@ -1,3 +1,4 @@
+import numpy as np
 import pyNastran
 from pathlib import Path
 from pyNastran.bdf.bdf import BDF
@@ -5,6 +6,10 @@ from pyNastran.op2.op2 import OP2
 from pyNastran.op4.op4 import OP4
 
 from src.utils.utils import runtime
+
+
+
+#phi = np.column_stack(mode_shapes)
 
 class preprocess_nastran():
     def __init__(self, program_input):
@@ -37,19 +42,21 @@ class preprocess_nastran():
             results = OP2()
             results.read_op2(self.op2_path) #, build_dataframe=True)
 
-        with runtime("read op4"):
-            op4 = OP4()
-            k_stiff = op4.read_op4(self.op4_path, matrix_names=['KGG'])
-            m_mass = op4.read_op4(self.op4_path, matrix_names=['MGG'])
-
+            """
+            with runtime("read op4"):
+                op4 = OP4()
+                k_stiff = op4.read_op4(self.op4_path, matrix_names=['KGG'])
+                m_mass = op4.read_op4(self.op4_path, matrix_names=['MGG'])
+            """
         ## Parse
-
+            """
             print(type(k_stiff))
 
             for key in k_stiff:
                 print("key! ", key)
 
             print(k_stiff['KGG'].data)
+            """
 
             eig1 = results.eigenvectors[1]
             
