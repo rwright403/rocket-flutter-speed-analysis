@@ -78,9 +78,6 @@ This method requires a Harmonics and a CFD Simulation
    - OpenFOAM, see [8],[9],[10] for toolkit used to assist with setting up simulations
 
 
-   ## Flutter Sol:
-   This repository
-
 
 <!-- Using a virtual environment to stop this from interfering w other python projects:
 Enter virtual env with 
@@ -113,10 +110,16 @@ From OPTISTRUCT
 ## Aerodynamic Model ✈️ - See [5]
 Unsteady Aerodynamic Model created with local piston theory and steady CFD results from method in [5]
 
-
+First Try: First Order Local Piston Theory, from [5] looks like we will likely want a higher order model
+Assumptions:
+- Small peturbations
+- thin airfoil
 
 ## Interpolation ➰
+Need to interpolate the pressure field to the locations of the structural elements
+
 will likely use this - https://docs.pyvista.org/examples/01-filter/interpolate
+
 
 
 ## Other Assumptions and Notes 📝
@@ -130,8 +133,10 @@ will likely use this - https://docs.pyvista.org/examples/01-filter/interpolate
 potentially ~ https://fenicsproject.org/ 
 
 
+
 ## Postprocessing 🛠️🐍
 none - if it has a gui are you really innovating?
+
 
 
 ## Validation ✅
