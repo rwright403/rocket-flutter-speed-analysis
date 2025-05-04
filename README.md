@@ -3,16 +3,32 @@ A loosely coupled flutter speed calculator built using open-source and software 
 Based on the method created by [5]
 
 ## Required Program Inputs:
-### CFD - from Openfoam:
-The following flow data along rocket oml:
-- p
-- rho
-- Ma - or a (ideally) ??? #TODO:
-- U
 
-### Structual Model - from ALTAIR HYPERMESH NASTRAN:
+### Structual Model - from ALTAIR OPTISTRUCT NASTRAN:
+The following data from ALTAIR OPTISTRUCT in the following NASTRAN Format:
+(note: either file works, this is just what I think gets output from each type)
+
+#### .OP2 Outputs:
 - natural frequencies
 - mode shapes
+(below are nice to have)
+- element centroids
+- element normal vectors
+
+#### .OP4 Outputs:
+- Global Mass Matrix
+- Global Stiffness Matrix
+
+
+
+### CFD - from Openfoam:
+The following freestream and local (at NASTRAN element centroids) flow data:
+- pressure (p)
+- density (rho)
+- speed of sound (a) 
+- flow velocity (U)
+
+Try to use OPENFOAM Sampling (postprocessing) tool to get flow data at NASTRAN element centroids https://www.openfoam.com/documentation/guides/latest/doc/guide-fos-sampling-sets.html
 
 
 ## Running this program:
@@ -116,9 +132,13 @@ Assumptions:
 - thin airfoil
 
 ## Interpolation ➰
-Need to interpolate the pressure field to the locations of the structural elements
+Need to interpolate the pressure field to the locations of the structural element nodes. 
 
-will likely use this - https://docs.pyvista.org/examples/01-filter/interpolate
+For element normal vectors and deflections, taken at element level. Need to solve aero at element node center and interpolate to structural model
+
+Going to try a few things:
+1) Try to use OPENFOAM Sampling (postprocessing) tool https://www.openfoam.com/documentation/guides/latest/doc/guide-fos-sampling-sets.html
+2) Otherwise we can likely use this library https://docs.pyvista.org/examples/01-filter/interpolate
 
 
 
@@ -168,5 +188,7 @@ TODO: try first tutorial to build an understanding of how all the pieces fit tog
 | [11]   | OS-T: 1110 Modal Analysis Setup | Altair Modal Analysis Setup |https://2021.help.altair.com/2021/hwsolvers/os/topics/solvers/os/modal_analysis_setup_r.htm
 | [12]   | Altair community fourum "How do i export stiffness and mass matrices from Optistruct?" | | https://community.altair.com/discussion/25732/how-do-i-export-stiffness-and-mass-matrices-from-optistruct|
 
+
+<!-- modal superposition formula det. if useful https://docs.software.vt.edu/abaqusv2023/English/SIMACAEGSARefMap/simagsa-c-dynmodsuperpos.htm -->
 
 <!-- This is a comment in a Markdown file (not rendered) --> 
