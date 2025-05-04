@@ -4,6 +4,7 @@ import numpy as np
 
 def solve_unsteady_local_downwash_speed_harmonic_vec(U_cfd_vec, norm_vec):
 
+#TODO: 
     delta_norm_vec = 1
     v_vibes_vec = 1
 
@@ -15,8 +16,6 @@ def solve_unsteady_local_downwash_speed_harmonic_vec(U_cfd_vec, norm_vec):
     w_def_vec = w_def_vec[:, np.newaxis]
     
     w_vec = w_def_vec + w_vib_vec
-
-
 
 
     return w_vec
@@ -41,15 +40,15 @@ def build_solve_matrix(V):
 
 
 """
-given structural and flowfield data where the flowfield has been interpolated onto the structural elements
+given structural and flowfield data where the flowfield has been interpolated onto the centroids of the structural elements
 return the eigenvalue
 
 """
 def flutter_eig(nas_dat, foam_data):
 
-    #given interpolated flowfield onto structural elements
-
     #for every pressure in flowfield, solve LPT
+
+    #interpolate aero onto structural
 
     # build eqns for matrix S
 

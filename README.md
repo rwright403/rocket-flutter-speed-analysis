@@ -18,7 +18,7 @@ The following data from ALTAIR OPTISTRUCT in the following NASTRAN Format:
 #### .OP4 Outputs:
 - Global Mass Matrix
 - Global Stiffness Matrix
-
+   - Order of nodes along matrix diagonals
 
 
 ### CFD - from Openfoam:
@@ -135,10 +135,9 @@ Assumptions:
 Need to interpolate the pressure field to the locations of the structural element nodes. 
 
 For element normal vectors and deflections, taken at element level. Need to solve aero at element node center and interpolate to structural model
-
-Going to try a few things:
-1) Try to use OPENFOAM Sampling (postprocessing) tool https://www.openfoam.com/documentation/guides/latest/doc/guide-fos-sampling-sets.html
-2) Otherwise we can likely use this library https://docs.pyvista.org/examples/01-filter/interpolate
+- We can likely use this library https://docs.pyvista.org/examples/01-filter/interpolate
+Note!!!! we are interpolating unsteady pressure --> complex numbers. 
+This cannot interpolate complex numbers directly, but we can split and interpolate real and complex parts separately.
 
 
 
