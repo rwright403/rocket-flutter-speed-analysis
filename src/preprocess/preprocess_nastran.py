@@ -11,6 +11,9 @@ from src.utils.utils import runtime
 
 #phi = np.column_stack(mode_shapes)
 
+
+
+
 class preprocess_nastran():
     def __init__(self, program_input):
 
@@ -68,5 +71,17 @@ class preprocess_nastran():
             print(results.get_op2_stats())
 
 
-            #TODO: PRINT MODE SHAPES *****, how to get elem norm vec???
+            #TODO: PRINT MODE SHAPES *****, also how to get elem norm vec???
+            """
+            all_subcases = list(results.eigenvectors.keys())
+            isubcase = all_subcases[0]
+            eig = results.eigenvectors[isubcase]
+            print("mode shapes: \n")
+            print(eig)
+            """
+            for eigenvectors in results:
+                print(eigenvectors.shape[1])
+
+
+
         
