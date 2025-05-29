@@ -89,6 +89,8 @@ For element normal vectors and deflections, taken at element level. Need to solv
 Note!!!! we are interpolating unsteady force --> complex numbers and vectors. 
 This cannot interpolate complex numbers directly, but we can split and interpolate real and complex parts separately.
 
+#### Blackboard:
+![Flutter](images/mech-lab-blackboard.jpg)
 
 
 ## Solver 📝 and Postprocessing 🛠️🐍
@@ -98,6 +100,7 @@ This results in a simple root loci eigenvalue problem that can be easily solved 
 potentially ~ https://fenicsproject.org/ 
 
 Depending on the sign of the imaginary part of the eigenvalue, can predict if flutter will occur.
+I think the sign on the real part can also be used to predict divergence as well --> TODO read more.
 
 
 ## Validation ✅
