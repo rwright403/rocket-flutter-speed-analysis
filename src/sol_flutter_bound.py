@@ -3,6 +3,9 @@ from src.utils import utils
 from src.preprocess.preprocess_openfoam import preprocess_openfoam
 from src.preprocess.preprocess_nastran import preprocess_nastran
 from src.flutter_eig.flutter_eig import flutter_eig
+from pyNastran.bdf.bdf import BDF
+from pyNastran.op2.op2 import OP2
+from pyNastran.op4.op4 import OP4
 
 def postprocess(eig, V, Ma):
 
@@ -25,8 +28,7 @@ def run(input_file):
 
     # how to abstract these best?
     nas_data = preprocess_nastran(program_input)
-    nas_data.read_and_parse()
-    #foam_data = preprocess_openfoam(program_input)
+    foam_data = preprocess_openfoam(program_input, nas_data)
 
     #eig = flutter_eig(nas_data, foam_data)
 

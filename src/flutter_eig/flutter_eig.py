@@ -1,38 +1,42 @@
 import sympy as sp
 import numpy as np
 
+def solve_cquad4_centroid():
 
-def solve_unsteady_local_downwash_speed_harmonic_vec(U_cfd_vec, norm_vec):
-
-    delta_norm_vec = 1
-    v_vibes_vec = 1
-
-    w_vib_vec = np.einsum('ij,ij->i', U_cfd_vec, delta_norm_vec)
-    w_vib_vec = w_vib_vec[:, np.newaxis]
-
-
-    w_def_vec = np.einsum('ij,ij->i', v_vibes_vec, norm_vec)
-    w_def_vec = w_def_vec[:, np.newaxis]
+def solve_cquad4_norm_vec():
     
-    w_vec = w_def_vec + w_vib_vec
+
+
+def solve_unsteady_local_downwash_speed_harmonic(U_cfd, norm):
+
+#TODO: 
+    delta_norm = 1
+    v_vibes = 1
+
+    w_vib = np.einsum('ij,ij->i', U_cfd, delta_norm)
+    w_vib = w_vib[:, np.newaxis]
+
+
+    w_def = np.einsum('ij,ij->i', v_vibes, norm)
+    w_def = w_def[:, np.newaxis]
+    
+    w = w_def + w_vib
+
+
+    return w
 
 
 
+# Local Piston Theory at a point!!!
+def solve_LPT_pt(P_cfd, rho_cfd, a_cfd, U_cfd, norm):
 
-    return w_vec
+    w = solve_unsteady_local_downwash_speed_harmonic(U_cfd, norm)
+    delta_P =  rho_cfd*a_cfd*w
 
-
-
-# Local Piston Theory vector!!!
-def solve_LPT_vec(P_cfd_vec, rho_cfd_vec, a_cfd_vec, U_cfd_vec, norm_vec):
-
-    w_vec = solve_unsteady_local_downwash_speed_harmonic_vec(U_cfd_vec, norm_vec)
-    delta_P_vec =  rho_cfd_vec*a_cfd_vec*w_vec
-
-    return delta_P_vec
+    return delta_P
 
 
-def build_gen_aero_force_vec():
+def build_gen_aero_force():
     F = 0
 
 
@@ -41,15 +45,15 @@ def build_solve_matrix(V):
 
 
 """
-given structural and flowfield data where the flowfield has been interpolated onto the structural elements
+given structural and flowfield data where the flowfield has been interpolated onto the centroids of the structural elements
 return the eigenvalue
 
 """
 def flutter_eig(nas_dat, foam_data):
 
-    #given interpolated flowfield onto structural elements
-
     #for every pressure in flowfield, solve LPT
+
+    #interpolate aero onto structural
 
     # build eqns for matrix S
 

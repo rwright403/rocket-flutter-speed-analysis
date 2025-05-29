@@ -19,7 +19,7 @@ class preprocess_openfoam():
 
 
 
-        self.freestream = dat.flowfield_point
+        self.freestream = dat.flowfield_point #outdated
 
 
         
