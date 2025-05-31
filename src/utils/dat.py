@@ -1,24 +1,30 @@
 import numpy as np
 from dataclasses import dataclass
 
+"""OpenFOAM .vtk result abstraction"""
+
+@dataclass
+class OpenFOAMcase:
+    pressures: np.ndarray
+    densities: np.ndarray
+    speeds_of_sound: np.ndarray
+    velocities: np.ndarray
+
+
+
 
 """NODE (plus) abstraction """
-"attr"
-# P, rho, a,
-#F_aero_
-
-"methods" # - none? dataclass?
 
 @dataclass
 class node_plus:
-    r_ : np.ndarray
+    r_: np.ndarray
 
-    p : float
-    rho : float
-    a : float #might need to use Ma
-    u_ : np.ndarray
+    p: float
+    rho: float
+    a: float #might need to use Ma and convert but i dont think so
+    u_: np.ndarray
 
-    F_aero_ : np.ndarray = np.array([0,0,0])
+    F_aero_: np.ndarray = np.array([0,0,0])
 
 
 
@@ -68,20 +74,16 @@ class cquad4_panel:
         return np.linalg.norm(normal)
 
 
-    def __init__(self):
-        ###logic here to take pynastran cquad4 type and extract essential info
+    def __init__(self, elem, node_lookup: dict[int, node_plus]):
+        # Extract node IDs in Nastran's sequential order
+        nid1, nid2, nid3, nid4 = elem.node_ids
 
-        self.n1 : node_plus # need to define the node plus on init which is ok!
-        self.n2 : node_plus
-        self.n3 : node_plus
-        self.n4 : node_plus
+        # Use node_lookup to fetch node_plus instances
+        self.n1 = node_lookup[nid1]
+        self.n2 = node_lookup[nid2]
+        self.n3 = node_lookup[nid3]
+        self.n4 = node_lookup[nid4]
 
         self.u_norm = self.solve_unit_normal_vec()
         self.jacobian = self.compute_jacobian()
-
-        
-        
-
-
-    
 

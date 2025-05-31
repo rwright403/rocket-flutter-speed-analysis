@@ -10,15 +10,16 @@ f_min = 50 # rad/s
 max_iter = 200
 omega_pcnt_conv = 10 #%
 
-### OpenFOAM input files for each relevant flow speed the user wants to analyze:
-"""
->
->
-"""
-#convert openfoam results and rocket boundary surface to .vtk format and enter paths
-openfoam_cfd_path = r"~/OpenFOAM/rwright-11/run/Ma1.5_AoA0_R4_rhoPimpleFoam/VTK/Ma1.5_AoA0_R4_rhoPimpleFoam_896.vtk" # ~ means rel to home btw
-openfoam_oml_path = r"~/OpenFOAM/rwright-11/run/Ma1.5_AoA0_R4_rhoPimpleFoam/VTK/wallPatch/wallPatch_896.vtk"
+output_filename = "out.csv"
 
+### OpenFOAM input files for each relevant flow speed the user wants to analyze:
+# Dictionary format: {freestream velocity speed (m/s) (float): vtk_path (str)}
+openfoam_files = {
+    343 : "~/OpenFOAM/rwright-11/run/Ma1.5_AoA0_R4_rhoPimpleFoam/VTK/Ma1.5_AoA0_R4_rhoPimpleFoam_896.vtk",
+    # Add more entries like:
+    # 686 : "~/OpenFOAM/.../Ma2.0_case.vtk",
+    # 1029: "~/OpenFOAM/.../Ma3.0_case.vtk"
+}
 
 ### NASTRAN input files:
 """
