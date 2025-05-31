@@ -15,13 +15,14 @@ class preprocess:
     def __init__(self, program_input):
         self.program_input = program_input
 
-        
-
         self.read_nastran()
 
         self.openfoam_cases = {}
         for freestream_vel, path in program_input.openfoam_files.items():
-            self.openfoam_cases[freestream_vel] = self.read_openfoam()
+            self.openfoam_cases[freestream_vel] = self.read_openfoam(path)
+
+        self.freestream_speeds = self.get_freestream_speeds()
+
 
 
 
@@ -68,15 +69,14 @@ class preprocess:
 
 
 ### OpenFOAM
-    def read_openfoam(self):
+    def read_openfoam(self,path):
 
         ## I/O
-        if not Path(self.program_input.openfoam_cfd_path).exists():
-            raise FileNotFoundError(f"Input OpenFoam CFD file not found: {self.program_input.openfoam_cfd_path}")
-        self.cfd_path = self.program_input.openfoam_cfd_path
+        if not Path(path).exists():
+            raise FileNotFoundError(f"Input OpenFoam CFD file not found: {path}")
 
         # Load mesh and field data
-        mesh = pv.read(self.program_input.openfoam_cfd_path)
+        mesh = pv.read(path)
 
         # Extract fields
         pressures = mesh.point_data.get('p')           # Pressure
@@ -85,7 +85,8 @@ class preprocess:
         speeds_of_sound = mesh.point_data.get('a')     # Speed of sound
 
         return dat.OpenFOAMcase(
-            pressures=pressures,
+            #NOTE: SEE NOTE ON PRESSURE REAL: 
+            pressures=pressures, #TODO: THERE WOULD BE 2 PRESSURES,ON ON EACH SIDE OF PLANE SO SHOULD I SUBTRACT THEM HERE AND TAKE DIFFERENCE OF PRESSURE?
             densities=densities,
             speeds_of_sound=speeds_of_sound,
             velocities=velocities
@@ -94,26 +95,26 @@ class preprocess:
     def get_freestream_speeds(self):
         return list(self.openfoam_cases.keys())
 
-    def build_node_plus_dict(self):
+    def build_node_plus_dict(self, cfd_case):
 
         node_ids = sorted(self.model.nodes.keys())
         coords = np.array([self.model.nodes[nid].xyz for nid in node_ids])
 
-        # Build list of node_plus instances
         nodes = {}
+        # Build list of node_plus instances
         for i, nid in enumerate(node_ids):
+
             nodes[nid] = dat.node_plus(
                 r_=coords[nid],
-                p=float(pressure[i]),
-                rho=float(density[i]),
-                a=float(speed_of_sound[i]),
-                u_= velocity[i],
-                F_aero_=np.array([0.0, 0.0, 0.0])
+                p=(cfd_case.pressure[i]),
+                rho=(cfd_case.density[i]),
+                a=(cfd_case.speed_of_sound[i]),
+                u_= cfd_case.velocity[i],
             )
-
         return nodes
 
-    def build_cquad4_panel_array(self, nodes):
+    ### ???
+    def build_cquad4_panel_array(self):
         panels = []
 
         for eid, elem in self.model.elements.items():

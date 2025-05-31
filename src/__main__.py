@@ -17,10 +17,6 @@ if __name__ == "__main__":
     ### Preprocess nastran
     input_dat = preprocess(args.input_file)
 
-    nodes = input_dat.build_node_plus_dict()
-    cquad4_panels = input_dat.build_cquad4_panel_array(nodes)
-
-
     ### P-K Method to sol flutter: 
     sol = pk_flutter_sol(input_dat, args.input_file.max_iter, args.input_file.omega_pcnt_conv )
     freestream_speeds, omegas = sol.run()
