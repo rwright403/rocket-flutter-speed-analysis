@@ -19,3 +19,9 @@ def runtime(name="Block"):
     yield
     end = time.time()
     print(f"[{name}] - finished, elapsed {end - start:.3f} seconds")
+
+"""
+
+"""
+def trans_matrix_phys_to_modal(phi,A):
+    return phi.T @ A @ phi

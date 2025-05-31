@@ -1,21 +1,28 @@
 import numpy as np
 from numpy.linalg import eig
+from src.utils import utils
 
 class pk_flutter_sol:
-    def __init__(self, Mgg_modal, Kgg_modal, max_iter, omega_pcnt_conv):
+    def __init__(self, input_dat, max_iter, omega_pcnt_conv):
 
-        self.Mgg_modal = Mgg_modal
-        self.Kgg_modal = Kgg_modal
+        self.input_dat = input_dat
+
+        self.cquad_4_elements = input_dat.cquad_4_elements
+
+        self.Mgg_modal = input_dat.Mgg_modal
+        self.Kgg_modal = input_dat.Kgg_modal
 
         self.max_iter = max_iter
         self.omega_pcnt_conv = omega_pcnt_conv
 
 
-        ### on init we want to maybe take parsed data and put them in datastructures!!!
 
-        ### also setup flow vectors and that stuff
+    ### local piston theory!
+    def local_piston_theory():
 
 
+
+    ### 
 
     def format_unsteady_aero_matrix(self, Q_phys_unordered, phi):
 
@@ -24,7 +31,7 @@ class pk_flutter_sol:
 
 
         ### TRANSFORM AERO MATRIX TO MODAL SPACE
-        Q_modal = phi.T @ Q_phys @ phi
+        Q_modal = utils.trans_matrix_phys_to_modal(phi, Q_phys)
         return Q_modal
 
     ### BUILD AERO MATRIX IN FREQUENCY DOMAIN AND PHYSICAL SPACE
@@ -54,7 +61,7 @@ class pk_flutter_sol:
 
             Q = self.build_unsteady_aero_matrix(omega_guess)
 
-            # Assemble A = -omega^2 M + i*omega Q + K
+            # Assemble governing eqn: A = -omega^2 M + i*omega Q + K
             A = -omega_guess**2 * self.Mgg_modal + 1j * omega_guess * Q + self.Kgg_modal
 
             # Solve eigenvalue problem: A * phi = 0
@@ -81,18 +88,19 @@ class pk_flutter_sol:
             omega_guess = omega_new
             iter += 1
 
-        raise RuntimeError("P–K flutter iteration did not converge.")
+        raise RuntimeError("P-K flutter iteration did not converge.")
         #TODO: more desc!
 
 
     ### P-K Method to sol flutter: 
     def run(self):
+        freestream_speeds = self.input_dat.
         omegas = []
           
-        for flow_velocity in flow_velocities:
+        for freestream_vel in self.freestream_speeds :
 
-            for mode in noteworthy_modes:
+            for nat_freq, mode in noteworthy_modes.items(): # this should be a dict with key as natural frequency
                  
-                omegas.append(self.frequency_match(omega_natural_frequency))
+                omegas.append( self.frequency_match(nat_freq) )
 
-        return flow_velocities, omegas
+        return omegas
