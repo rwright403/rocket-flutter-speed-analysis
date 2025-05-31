@@ -1,12 +1,11 @@
 import time
-import numpy as np
 from contextlib import contextmanager
 
 def _print_stars():
     print("\n" + "*" * 20 + "\n")
 
 def _print_figma():
-    print("\n         			                _______\n	UVic Rocketry Fin Flutter Solver       /       \~\n      				   	      /         \~\n_____________________________________________/           \~\n") #- no figma until it works
+    print(r"\n         			                _______\n	UVic Rocketry Fin Flutter Solver       /       \~\n      				   	      /         \~\n_____________________________________________/           \~\n") #- no figma until it works
 
 
 """ 

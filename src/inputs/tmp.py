@@ -1,5 +1,16 @@
+### Program Ctrl input:
+"""
+>f_max is the maximum frequency [rad/s] to define the range of modes analyzed for flutter from nastran
+>f_min is the minimum frequency [rad/s] to define the range of modes analyzed for flutter from nastran
+>f_pcnt_conv is the percentage difference between the guessed frequency and resolved frequency. Used to define "converged"
+"""
+f_max = 10000 # rad/s
+f_min = 50 # rad/s
 
-### OpenFOAM input files:
+max_iter = 200
+omega_pcnt_conv = 10 #%
+
+### OpenFOAM input files for each relevant flow speed the user wants to analyze:
 """
 >
 >
