@@ -3,6 +3,7 @@ import numpy as np
 from pathlib import Path
 from src.utils import utils, dat
 
+#TODO: MAKE A FUNCTION
 
 class preprocess_openfoam():
     def __init__(self, program_input):
@@ -19,14 +20,10 @@ class preprocess_openfoam():
 
 
 
-        self.freestream = dat.flowfield_point #outdated
+        #self.freestream = dat.flowfield_point #outdated
 
 
         
-        ## Interpolate
-
-    def read_and_parse(self):
-        raise NotImplementedError("TODO: Implement this method.")
 
         
 

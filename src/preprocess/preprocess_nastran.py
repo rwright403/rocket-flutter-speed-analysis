@@ -1,5 +1,4 @@
 import numpy as np
-import pyNastran
 from pathlib import Path
 from pyNastran.bdf.bdf import BDF
 from pyNastran.op2.op2 import OP2
@@ -11,7 +10,7 @@ from src.utils.utils import runtime
 
 #phi = np.column_stack(mode_shapes)
 
-
+#TODO: MAKE A FUNCTION
 
 class preprocess_nastran():
     def __init__(self, program_input):
@@ -39,12 +38,15 @@ class preprocess_nastran():
             self.results = OP2()
             self.results.read_op2(self.op2_path) #, build_dataframe=True)
 
-            """
-            with runtime("read op4"):
-                op4 = OP4()
-                self.k_stiff = op4.read_op4(self.op4_path, matrix_names=['KGG'])
-                self.m_mass = op4.read_op4(self.op4_path, matrix_names=['MGG'])
-            """
+            
+        with runtime("read op4"):
+            op4 = OP4()
+            self.k_stiff = op4.read_op4(self.op4_path, matrix_names=['KGG'])
+            self.m_mass = op4.read_op4(self.op4_path, matrix_names=['MGG'])
+        
 
+        ## load everything into program datastructures
+
+        # prolly for every element --> initialize elements and nodes 
 
         
