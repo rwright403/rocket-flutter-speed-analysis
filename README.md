@@ -15,6 +15,11 @@ The inputs folder contains the input files where the user can update the inputs 
 ### Harmonics Simulation - from ALTAIR OPTISTRUCT NASTRAN:
 The following data from ALTAIR OPTISTRUCT in the following NASTRAN Format:
 
+To obtain the required output files, put the following lines above case ctrl:
+   | FORMAT = OP2
+   | OUTPUT,MATRIX,FULL,SPARSE 
+
+
 #### .OP2 Outputs:
 - natural frequencies
 - mode shapes
@@ -24,13 +29,15 @@ The following data from ALTAIR OPTISTRUCT in the following NASTRAN Format:
 - element normal vectors
 - element areas
 
+
+
 ### Structual Model - from ALTAIR OPTISTRUCT NASTRAN:
 The model global mass and stiffness matrices from ALTAIR OPTISTRUCT in the following NASTRAN Format:
 
-#### .OP4 Outputs:
+#### .mat (Altair Hyperworks) Outputs:
 - Global Mass Matrix
 - Global Stiffness Matrix
-   - Order of nodes along matrix diagonals
+   - Order of nodes along matrix diagonals ?
 
 
 ### CFD - from Openfoam:
@@ -42,7 +49,8 @@ The following freestream and local (at NASTRAN element centroids) flow data:
 
 Try to use OPENFOAM Sampling (postprocessing) tool to get flow data at NASTRAN element centroids https://www.openfoam.com/documentation/guides/latest/doc/guide-fos-sampling-sets.html
 
-
+#### Right now program just takes a series of openfoam input files. In a future iteration of the program, should nondimensionalize all aero and allow the user to create and interpolate from a database to use fewer cfd runs.
+I am just setting up a MVP version of this program because of a time constraint I am under and because I am learning aeroelasticity.
 
 # Documentation
 
@@ -97,8 +105,6 @@ This cannot interpolate complex numbers directly, but we can split and interpola
 Since we only care about flutter speed (not capturing any behavior after flutter point), solve problem in frequency domain as per [5]
 This results in a simple root loci eigenvalue problem that can be easily solved with an already built library.
 
-potentially ~ https://fenicsproject.org/ 
-
 Depending on the sign of the imaginary part of the eigenvalue, can predict if flutter will occur.
 I think the sign on the real part can also be used to predict divergence as well --> TODO read more.
 
@@ -135,6 +141,7 @@ TODO: try first tutorial to build an understanding of how all the pieces fit tog
 | [10]   | Docker instructions for [8],[9] | Setup CFD Toolkit | https://github.com/jakobhaervig/openfoam-dockerfiles |
 | [11]   | OS-T: 1110 Modal Analysis Setup | Altair Modal Analysis Setup |https://2021.help.altair.com/2021/hwsolvers/os/topics/solvers/os/modal_analysis_setup_r.htm
 | [12]   | Altair community fourum "How do i export stiffness and mass matrices from Optistruct?" | | https://community.altair.com/discussion/25732/how-do-i-export-stiffness-and-mass-matrices-from-optistruct|
+| [13]   | .mat file format | used to reference for parser |https://2021.help.altair.com/2021/hwsolvers/os/topics/solvers/os/full_mat_file_r.htm |
 
 <!-- Using a virtual environment to stop this from interfering w other python projects:
 Enter virtual env with 

@@ -1,8 +1,8 @@
 import argparse
-from . import utils
-from preprocess.preprocess import preprocess #TODO:
-from pk_flutter_sol.pk_flutter_sol import pk_flutter_sol
-from postprocess.postprocess import root_locus_plot, write_flutter_results_to_csv
+from src.utils import utils
+from src.preprocess import preprocess #TODO:
+from src.pk_flutter_sol import pk_flutter_sol
+from src.postprocess import postprocess
 
 if __name__ == "__main__":
     # Parse command-line arguments
@@ -15,15 +15,15 @@ if __name__ == "__main__":
     # Run the program with the specified input file
 
     ### Preprocess nastran
-    input_dat = preprocess(args.input_file)
+    input_dat = preprocess.preprocess(args.input_file)
 
     ### P-K Method to sol flutter: 
-    sol = pk_flutter_sol(input_dat, args.input_file.max_iter, args.input_file.omega_pcnt_conv )
+    sol = pk_flutter_sol.pk_flutter_sol(input_dat, args.input_file.max_iter, args.input_file.omega_pcnt_conv )
     freestream_speeds, omegas = sol.run()
 
 
 
     ### Postprocessing
-    root_locus_plot(freestream_speeds, omegas)
-    write_flutter_results_to_csv(freestream_speeds, omegas, args.input_file.output_filename)
+    postprocess.root_locus_plot(freestream_speeds, omegas)
+    postprocess.write_flutter_results_to_csv(freestream_speeds, omegas, args.input_file.output_filename)
     
