@@ -7,7 +7,10 @@ class pk_flutter_sol:
 
         self.input_dat = input_dat
 
+        self.freestream_speeds = self.input_dat.freestream_speeds
+
         self.cquad_4_elements = input_dat.cquad_4_elements
+        self.noteworthy_modes = 1 #TODO:
 
         self.Mgg_modal = input_dat.Mgg_modal
         self.Kgg_modal = input_dat.Kgg_modal
@@ -16,9 +19,6 @@ class pk_flutter_sol:
         self.omega_pcnt_conv = omega_pcnt_conv
 
 
-
-    ### local piston theory!
-    def local_piston_theory():
 
 
 
@@ -37,7 +37,27 @@ class pk_flutter_sol:
     ### BUILD AERO MATRIX IN FREQUENCY DOMAIN AND PHYSICAL SPACE
     def build_unsteady_aero_matrix(self, omega_guess):
 
-        Q_phys_unordered = 1
+        Q_phys_unordered = []
+
+        """
+        for every aero panel:
+            for every node in aero panel
+                call the local piston theory on every node in the aero panel to get unsteady pressure
+
+
+                jacobian = panel.compute_jacobian() #solve jacobian per panel
+                df = -p_param * panel.n_*jacobian # solve dF of node
+
+                -numerically integrate force per node --> 
+                -add panel contribution to the total force on the node
+
+
+        for every node: 
+            Q_phys_unordered.append(aero_force_on_node_from_panel) #append force per node to Q_phys_unordered!
+        
+        """
+
+        #Q_phys_unordered = np.array([]) convert to np array
         phi = 1
 
         Q_modal = self.format_unsteady_aero_matrix(Q_phys_unordered, phi)
@@ -94,12 +114,16 @@ class pk_flutter_sol:
 
     ### P-K Method to sol flutter: 
     def run(self):
-        freestream_speeds = self.input_dat.
         omegas = []
           
-        for freestream_vel in self.freestream_speeds :
+        #TODO: extract freestream speeds!
+        for freestream_vel in self.freestream_speeds:
 
-            for nat_freq, mode in noteworthy_modes.items(): # this should be a dict with key as natural frequency
+            #TODO: PASS IN FREESTREAM VELOCITY AS KEY TO FIND THE CFD CASE VAL!!!!
+            self.input_dat.build_node_plus_dict(freestream_vel)
+            self.input_dat.build_cquad4_panel_array(freestream_vel)
+
+            for nat_freq, mode in self.noteworthy_modes.items(): # this should be a dict with key as natural frequency
                  
                 omegas.append( self.frequency_match(nat_freq) )
 

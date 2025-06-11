@@ -1,0 +1,7 @@
+ 
+
+ *** See next message about line 10 from file: tc3-v3-sol-103.fem
+  "  PARAM,EXTOUT,OP4"
+  
+ *** ERROR # 1022 *** in the input data:
+ Field 3 contains a value outside of allowable range.

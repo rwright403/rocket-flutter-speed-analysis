@@ -33,7 +33,7 @@ def write_flutter_results_to_csv(flow_velocites, omegas, filename):
     print(f"Flutter results written to '{filename}'")
 
 
-
+"""
 ### Testing:
 
 # Example data
@@ -48,3 +48,4 @@ omegas = np.array([
 ])
 
 root_locus_plot(flow_velocites, omegas)
+"""

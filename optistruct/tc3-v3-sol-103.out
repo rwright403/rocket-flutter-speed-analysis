@@ -1,0 +1,81 @@
+ ************************************************************************
+ **                                                                    **
+ **                                                                    **
+ **                     Altair OptiStruct(TM) 2025                     **
+ **                                                                    **
+ **             Advanced Engineering Analysis, Design and              **
+ **        Optimization Software from Altair Engineering, Inc.         **
+ **                                                                    **
+ **   OptiStruct includes an enhanced proprietary version of NASTRAN   **
+ **                                                                    **
+ **                                                                    **
+ **                 Windows 10  (Build 9200)  RWRIGHT2                 **
+ **           20 CPU:  13th Gen Intel(R) Core(TM) i9-13900H            **
+ **                    12939 MB RAM,  43124 MB swap                    **
+ **                                                                    **
+ ** Build: 1246461uwn33xxx_Ce64RB6s8UH14M-000  46004004000000004000    **
+ ************************************************************************
+ **  COPYRIGHT (C) 1996-2024                 Altair Engineering, Inc.  **
+ ** All Rights Reserved.  Copyright notice does not imply publication. **
+ **         Contains trade secrets of Altair Engineering, Inc.         **
+ ** Decompilation or disassembly of this software strictly prohibited. **
+ ************************************************************************
+ 
+  
+ *** OptiStruct defaults set from:
+   install config file: C:/Program Files/Altair/2025/hwsolvers/optistruct.cfg.
+  
+  
+ NOTE # 9199
+ MSGLMT=STRICT is active, all messages will be printed unless there is
+ a subsequent MSGLMT definition to limit error or warning messages.
+ You can also suppress some less important warning messages by use of
+  MSGLMT=BRIEF or UNREF (in config file or in the input data).
+  
+ 
+ *** See next message about line 10 from file: tc3-v3-sol-103.fem
+  "  PARAM,EXTOUT,OP4"
+  
+ *** ERROR # 1022 *** in the input data:
+ Field 3 contains a value outside of allowable range.
+ MAXIMUM DISK SPACE USED                                     1 MB
+
+************************************************************************
+
+
+************************************************************************
+
+COMPUTE TIME INFORMATION
+------------------------
+
+ EXECUTION STARTED                         Tue Jun 10 18:52:06 2025    
+ EXECUTION COMPLETED                       Tue Jun 10 18:52:07 2025    
+ ELAPSED TIME                                         00:00:00
+ CPU TIME                                             00:00:00
+
+************************************************************************
+
+  
+ 
+ *** PROGRAM STOPPED: FATAL ERROR(s) ENCOUNTERED.
+ 
+                        ***** END OF REPORT *****
+  
+ For OptiStruct Community Forum, go to the URL:
+ http://www.altair.com/optistruct-community
+ For Altair Community Knowledge Base, go to the URL:
+ http://www.altair.com/knowledge
+  
+************************************************************************
+  
+ A fatal error has been detected during input processing:
+  
+  
+  *** See next message about line 10 from file: tc3-v3-sol-103.fem
+   "  PARAM,EXTOUT,OP4"
+  
+  *** ERROR # 1022 *** in the input data:
+  Field 3 contains a value outside of allowable range.
+  
+  
+************************************************************************
