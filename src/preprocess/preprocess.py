@@ -4,7 +4,6 @@ from pathlib import Path
 import importlib
 from pyNastran.bdf.bdf import BDF
 from pyNastran.op2.op2 import OP2
-from pyNastran.op4.op4 import OP4
 from src.utils import utils, dat
 
 
@@ -21,9 +20,8 @@ class preprocess:
         self.model = None
         self.results = None
         self.phi = None
-        self.k_stiff = None
-        self.m_mass = None
-
+        self.KGG = None
+        self.MGG = None
 
         self.read_nastran()
 
@@ -49,17 +47,17 @@ class preprocess:
             raise FileNotFoundError(f"Input op2 file not found: {self.program_input.nastran_op2_path}")
         op2_path = self.program_input.nastran_op2_path
 
-        if not Path(self.program_input.nastran_op4_path).exists():
-            raise FileNotFoundError(f"Input op4 file not found: {self.program_input.nastran_op4_path}")
-        full_mat_path = self.program_input.nastran_op4_path
+        if not Path(self.program_input.nastran_mat_path).exists():
+            raise FileNotFoundError(f"Input mat file not found: {self.program_input.nastran_mat_path}")
+        full_mat_path = self.program_input.nastran_mat_path
 
 
         ## Read
-        with utils.runtime("read bdf"):       # FEM
+        with utils.runtime("read .bdf"):       # FEM
             self.model = BDF()
             self.model.read_bdf(bdf_path)
             
-        with utils.runtime("read op2"):       # mode shapes and eigenvectors
+        with utils.runtime("read .op2"):       # mode shapes and eigenvectors
             self.results = OP2()
             self.results.read_op2(op2_path) #, build_dataframe=True)
 
@@ -85,21 +83,10 @@ class preprocess:
 
 
             
-        with utils.runtime("read op4"):       # global matrices
+        with utils.runtime("read .mat"):       # global matrices
+            self.KGG = utils.read_and_parse_mat_file("STIFFNESS",full_mat_path)
+            self.MGG = utils.read_and_parse_mat_file("MASS",full_mat_path)
             
-
-            utils.read_and_parse_mat_file("STIFFNESS",full_mat_path)
-            
-            """
-            op4 = OP4()
-
-            print( "readop4: ", op4.read_op4(op4_path, matrix_names=['KGG']) )
-
-            matrix_dict = op4.read_op4(op4_path, matrix_names=['KGG','MGG'])
-
-            self.k_stiff = utils.trans_matrix_phys_to_modal( self.phi, matrix_dict['KGG'].data.tocsr() )
-            self.m_mass = utils.trans_matrix_phys_to_modal( self.phi, matrix_dict['KGG'].data.tocsr() )
-            """
 
 ### OpenFOAM
     def read_openfoam(self, path):

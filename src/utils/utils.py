@@ -44,12 +44,6 @@ def read_and_parse_mat_file(mat_str, filepath):
     # Parse header line
     header = lines[row_idx].split()
 
-    for i in header:
-        print(i)
-
-    print(f"\nheader 3: {header[3]}\n")
-
-
     data = []
     data_row_idx = []
     data_col_idx = []
