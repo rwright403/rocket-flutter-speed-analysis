@@ -26,4 +26,3 @@ if __name__ == "__main__":
     ### Postprocessing
     postprocess.root_locus_plot(freestream_speeds, omegas)
     postprocess.write_flutter_results_to_csv(freestream_speeds, omegas, args.input_file.output_filename)
-    
