@@ -1,6 +1,6 @@
 # rocket-flutter-speed-analysis 🚀
 A loosely coupled flutter speed calculator built using open-source and software available to students (from a student license).
-Based on the method created by [5]
+Based on the method created by [5]. Created for UVic Rocketry https://onlineacademiccommunity.uvic.ca/rocketry/rockets/ :)
 
 ## Running this program:
 This file takes input in the form of a python module file. 
