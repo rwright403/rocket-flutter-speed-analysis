@@ -3,20 +3,6 @@ import pyvista as pv
 import trimesh
 from pyNastran.bdf.bdf import BDF
 
-# I love solidworks!
-def shift_stl_in_y(filepath, abs_val_magnitude_to_shift):
-    # Load the STL
-    mesh = trimesh.load_mesh(filepath)
-
-    # Apply translation: shift -1 mm in Y
-    mesh.apply_translation([0.0, -abs_val_magnitude_to_shift, 0.0])
-
-    # Save the shifted STL
-    mesh.export("out.STL")
-
-    print(f"mesh from {filepath} shifted -{abs_val_magnitude_to_shift} units!")
-
-
 def parse_nas_bdf(bdf_filepath):
     """
     given the filepath to a nastran bdf use pynastran to read the .bdf and return a list of tuples of (x,z)
@@ -110,46 +96,36 @@ def write_sample_dict(points, output_path):
         points (list of tuple): List of (x, y, z) probe points.
         output_path (str): Path to write the sampleDict file.
     """
-    header = (
-        "FoamFile\n"
-        "{\n"
-        "    version     2.0;\n"
-        "    format      ascii;\n"
-        "    class       dictionary;\n"
-        "    location    \"system\";\n"
-        "    object      sampleDict;\n"
-        "}\n\n"
-    )
-
     body = ""
-    body += "interpolationScheme cellPoint;\n"
+    body += "interpolationScheme cellPointFace;\n"
     body += "setFormat raw;\n\n"
 
     # Sets block
-    body += "sets\n(\n"
-    body += "    probePoints\n"
+    body += "functions\n{\n"
+    body += "    sample\n"
     body += "    {\n"
-    body += "        type points;\n"
-    body += "        axis xyz;\n"
-    body += "        points\n"
+    body += "        type probes;\n"
+    body += "        libs (\"libsampling.so\");\n"
+    body += "        interpolationScheme cellPointFace;\n"
+    body += "        setFormat raw;\n\n"
+    body += "        probeLocations\n"
     body += "        (\n"
     for pt in points:
         body += f"            ({pt[0]} {pt[1]} {pt[2]})\n"
     body += "        );\n"
+    body += "        fields\n"
+    body += "        (\n"
+    body += "            p\n"
+    body += "            rho\n"
+    body += "            a\n"
+    body += "            U\n"
+    body += "        );\n"
     body += "    }\n"
-    body += ");\n\n"
-
-    # Hardcoded fields block
-    body += "fields\n(\n"
-    body += "    p\n"
-    body += "    rho\n"
-    body += "    a\n"
-    body += "    U\n"
-    body += ");\n"
+    body += "};\n\n"
 
     # Write to file
     with open(output_path, "w") as f:
-        f.write(header + body)
+        f.write(body)
 
     print(f"sampleDict written to: {output_path}")
 
@@ -157,11 +133,10 @@ def write_sample_dict(points, output_path):
 
 ###program start:
 #for my ref - remember to cd to this dir
-bdf_filepath = r"test_read_nodes_lg.bdf"
+bdf_filepath = r"_80-tc1-coarse.bdf"
 stl_filepath = r"_80-tc1-no-le-chamfer.STL"
 sample_dict_filename = "sampleDict"
 
-#shift_stl_in_y(stl_filepath, 0.001) #only run once otherwise you will keep shifting your file in y
 sample_pts_xz = parse_nas_bdf(bdf_filepath)
 sample_pts = project_node_y_direction(stl_filepath, sample_pts_xz)
 write_sample_dict(sample_pts, sample_dict_filename)
