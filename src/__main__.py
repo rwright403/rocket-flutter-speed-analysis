@@ -18,7 +18,12 @@ if __name__ == "__main__":
     openfoam_cases = preprocess.read_openfoam(input_module)
     noteworthy_modes = preprocess.compile_noteworthy_modes(input_module.f_min, input_module.f_max, struct_harmonics.results)
 
-    
+    elastic_axis = struct.solve_elastic_axis_isotropic_fin()
+    #NOTE: bending_axis for a symmetrical fin on xz plane --> moment arm is just 1/2*t
+
+    ## get modal KGG AND MGG
+    KGG_modal = utils.trans_matrix_phys_to_modal(struct_harmonics.phi, struct_harmonics.KGG)
+    MGG_modal = utils.trans_matrix_phys_to_modal(struct_harmonics.phi, struct_harmonics.MGG)
 
     ### P-K Method to sol flutter: 
     freestream_speeds = []
@@ -29,15 +34,13 @@ if __name__ == "__main__":
         nodes = aero_model.build_node_plus_dict(openfoam_data) #NOTE: THIS DOES NOT WORK, BECAUSE 2 FLOWFIELD POINTS UNLESS DOUBLE NODES AND DEAL WITH IN LOCAL PISTON THEORY
         cquad4_panels = aero_model.build_cquad4_panel_array(openfoam_data, nodes)
 
-
         for nat_freq, mode in noteworthy_modes.items(): # this should be a dict with key as natural frequency - NOTE: need to build based on input range of natural frequencies to check
-            try: 
-                omega = aero_model.frequency_match(nat_freq)
-                freestream_speeds.append(omega)
+            try:
+                omega = aero_model.frequency_match(nat_freq, nodes, cquad4_panels, KGG_modal, MGG_modal, input_module.omega_pcnt_conv, input_module.max_iter)
                 omegas.append(omega)
+                freestream_speeds.append(freestream_speed) 
             except RuntimeError: 
                 print(f"ERROR: mode shape at {nat_freq} Hz failed to converge. No frequency obtained")
-
 
 
     ### Postprocessing
