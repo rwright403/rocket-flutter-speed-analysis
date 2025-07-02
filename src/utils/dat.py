@@ -1,50 +1,46 @@
-import numpy as np
 from dataclasses import dataclass
+import numpy as np
+from scipy.sparse import csr_matrix
+from pyNastran.bdf.bdf import BDF
+from pyNastran.op2.op2 import OP2
 
-"""OpenFOAM .vtk result abstraction"""
+"""OpenFOAM sims assuming ideal gas:"""
+GAMMA = 1.4
+R_SPEC_AIR = 287.0024853 #J/kg
+
+"""OpenFOAM result abstraction"""
 
 @dataclass
 class OpenFOAMcase:
     pressures: np.ndarray
     densities: np.ndarray
-    speeds_of_sound: np.ndarray
+    temperatures: np.ndarray
     velocities: np.ndarray
 
 
+@dataclass
+class NASTRANsol103:
+    model: BDF
+    results: OP2
+    phi: csr_matrix
+    KGG: csr_matrix
+    MGG: csr_matrix
+    #TODO: ADD NODE KEY
 
 
 """NODE (plus) abstraction """
 
-
 class node_plus:
-    def __init__(self, r_=np.ndarray, p=float, rho=float, a=float, u_=float):
+    def __init__(self, r_=np.ndarray, p=float, rho=float, T=float, u_=float):
 
         self.r_ = r_
 
         self.p = p
         self.rho = rho
-        self.a = a
+        self.a = np.sqrt(GAMMA*R_SPEC_AIR*T) #NOTE: Assuming ideal gas
         self.u_ = u_
 
-        self.F_aero_: np.ndarray = np.array([0,0,0])
-
-    ### local piston theory!
-    #def local_piston_theory(): #NOTE: or put this as a method in the aero panel class or in the node class?
-    # how to deal with 2 sides? 
-    # --> define a + unst. pressure and a - unst. pressure?
-
-    ### does this work here???? normal vector is an element parameter?
-    ### should we create a list of unsteady pressures in the same order as the nastran nodes?
-    def local_piston_theory(self, n_, omega):
-
-        delta_n_ = 1
-
-        u_b_ = 1
-
-        w_ = self.u_*delta_n_ + u_b_*n_ # type: ignore
-
-        return self.p + self.rho*self.a *w_ # type: ignore
-
+        self.F_aero_: np.ndarray = np.array([0,0,0]) #NOTE: SEE NOTEBOOK, I DONT LIKE THIS
 
 
 
@@ -103,6 +99,6 @@ class cquad4_panel:
         self.n3 = node_lookup[nid3]
         self.n4 = node_lookup[nid4]
 
-        self.u_norm = self.solve_unit_normal_vec()
+        self.n_ = self.solve_unit_normal_vec()
         self.jacobian = self.compute_jacobian()
 

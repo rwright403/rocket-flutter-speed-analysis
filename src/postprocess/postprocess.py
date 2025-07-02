@@ -1,15 +1,17 @@
-import numpy as np
 import matplotlib.pyplot as plt
 import csv
 
-def root_locus_plot(flow_velocites, omegas):
+def v_f_v_g_plot():
+    x=1
+
+def root_locus_plot(freestream_speeds, omegas):
     real_parts = [omega.real for omega in omegas]
     imag_parts = [omega.imag for omega in omegas]
 
 
     # Plot
     plt.figure(figsize=(10, 6))
-    sc = plt.scatter(real_parts, imag_parts, c=flow_velocites, cmap='viridis', s=100, edgecolor='black')
+    sc = plt.scatter(real_parts, imag_parts, c=freestream_speeds, cmap='viridis', s=100, edgecolor='black')
 
     plt.xlabel("Real(ω) [Damping]")
     plt.ylabel("Imag(ω) [Oscillation Frequency]")
@@ -21,13 +23,13 @@ def root_locus_plot(flow_velocites, omegas):
     plt.tight_layout()
     plt.show()
 
-def write_flutter_results_to_csv(flow_velocites, omegas, filename):
+def write_flutter_results_to_csv(freestream_speeds, omegas, filename):
 
     with open(filename, mode='w', newline='') as file:
             writer = csv.writer(file)
             writer.writerow(["flow_velocity [m/s]", "real frequency component [rad/s]", "imag frequency component [rad/s]"])
             
-            for u, omega in zip(flow_velocites, omegas):
+            for u, omega in zip(freestream_speeds, omegas):
                 writer.writerow([u, omega.real, omega.imag])
         
     print(f"Flutter results written to '{filename}'")
@@ -37,7 +39,7 @@ def write_flutter_results_to_csv(flow_velocites, omegas, filename):
 ### Testing:
 
 # Example data
-flow_velocites = np.array([50, 50, 60, 60, 70, 70])
+freestream_speeds = np.array([50, 50, 60, 60, 70, 70])
 omegas = np.array([
     complex(-0.15, -20.0),
     complex(-0.12, -11.3),
@@ -47,5 +49,5 @@ omegas = np.array([
     complex(0.12, 26.0)
 ])
 
-root_locus_plot(flow_velocites, omegas)
+root_locus_plot(freestream_speeds, omegas)
 """

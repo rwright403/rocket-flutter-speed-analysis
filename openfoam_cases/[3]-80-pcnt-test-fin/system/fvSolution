@@ -1,0 +1,96 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSolution;
+}
+
+solvers
+{
+    // OPTION 1
+    p
+    {
+        solver          PBiCGStab;
+        preconditioner  DIC;
+        tolerance       1e-15;
+        relTol          0.01;
+        minIter         1;
+    }
+
+    pFinal
+    {
+        $p;
+        relTol          0.1;
+    }
+
+    // OPTION 2
+    // p
+    // {
+    //     solver          GAMG;
+    //     smoother        GaussSeidel;
+    //     tolerance       1e-14;
+    //     relTol          0.01;
+    //     minIter         1;
+    // }
+
+    // pFinal
+    // {
+    //     $p;
+    //     relTol          0.0;
+    // }
+
+    "(rho|U|e)"
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-14;
+        relTol          0.01;
+        minIter         1;
+    }
+
+    "(rho|U|e)Final"
+    {
+        $U;
+        relTol          0.1;
+    }
+
+    "(k|omega)"
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-14;
+        relTol          0.01;
+        minIter         1;
+    }
+
+    "(k|omega)Final"
+    {
+        $k;
+        relTol          0.1;
+    }
+}
+
+PIMPLE
+{
+    nOuterCorrectors 2;
+    nCorrectors 2;
+    nNonOrthogonalCorrectors 0;
+    momentumPredictor yes;
+    pRefCell 0;
+    pRefValue 0;
+}
+
+relaxationFactors
+{
+    fields
+    {
+        p               0.3;
+    }
+    equations
+    {
+        U               0.7;
+        k               0.7;
+        omega           0.7;
+    }
+}
