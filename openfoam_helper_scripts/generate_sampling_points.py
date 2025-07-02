@@ -11,7 +11,8 @@ def parse_nas_bdf(bdf_filepath):
     model = BDF()
     model.read_bdf(bdf_filepath)
     sample_pts_xz = []
-    for nid,node in sorted(model.nodes.items()):
+    for nid, node in sorted(model.nodes.items()):
+        #print(nid) from this print statement learned that pynastran orders nodes chronologically!
         sample_pts_xz.append( (node.xyz[0],node.xyz[2]) )
 
     return sample_pts_xz
