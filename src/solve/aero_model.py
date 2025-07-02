@@ -1,26 +1,37 @@
 import numpy as np
 from numpy.linalg import eig
 from src.utils import utils, dat
+from collections import defaultdict
+from solve import struct
 
 """
 Parse the openfoam data and build all the node+ objects
 """
-def build_node_plus_dict(self, openfoam_data):
+def build_node_plus_dict(model, openfoam_data):
 
-    node_ids = sorted(self.model.nodes.keys())
-    coords = np.array([self.model.nodes[nid].xyz for nid in node_ids])
+    node_ids = sorted(model.nodes.keys()) #node_ids arranged in chronological order 
+    coords = np.array([model.nodes[nid].xyz for nid in node_ids])
 
     nodes = {}
     # Build list of node_plus instances
+    j=0
     for i, nid in enumerate(node_ids):
 
         nodes[nid] = dat.node_plus(
             r_=coords[nid],
-            p=(openfoam_data.pressures[i]),
-            rho=(openfoam_data.densities[i]),
-            a=np.sqrt(dat.GAMMA*openfoam_data.temperatures[i]*dat.R_SPEC_AIR),
-            u_= openfoam_data.velocites[i],
+
+            p_y_plus=(openfoam_data.pressures[j]),
+            rho_y_plus=(openfoam_data.densities[j]),
+            a_y_plus=np.sqrt(dat.GAMMA*openfoam_data.temperatures[j]*dat.R_SPEC_AIR),
+            u_y_plus_= openfoam_data.velocites[j],
+
+            p_y_neg=(openfoam_data.pressures[j+1]),
+            rho_y_neg=(openfoam_data.densities[j+1]),
+            a_y_neg=np.sqrt(dat.GAMMA*openfoam_data.temperatures[j+1]*dat.R_SPEC_AIR),
+            u_y_neg_= openfoam_data.velocites[j+1],
         )
+        j +=2
+
     return nodes
 
 
@@ -44,7 +55,7 @@ def build_cquad4_panel_array(struct_harmonics, nodes):
 
     ### does this work here???? normal vector is an element parameter?
     ### should we create a list of unsteady pressures in the same order as the nastran nodes?
-def local_piston_theory(node, n_, omega):
+def local_piston_theory(p, rho, a, u, n_, omega):
 
     delta_n_ = 1
 
@@ -52,28 +63,29 @@ def local_piston_theory(node, n_, omega):
 
     w_ = u_*delta_n_ + u_b_*n_ # type: ignore
 
-    return node.p + node.rho*node.a *w_ # type: ignore
+    return p + rho*a *w_ # type: ignore
 
 
 """
-loop through all nodes and solve the force of lift contribution from each panel
-don't return anything, just update the nodes - makes it easy to then build the aero matrix!
+solve the force of lift contribution from panel on a node
+return aero force
 """
-def solve_aero_force(nodes, cquad4_panels, omega):
+def solve_aero_force(omega, xi, eta, node, cquad4_panel):
+        
+    p_unst_pos_y = local_piston_theory(node.p_y_plus, node.rho_y_plus, node.a_y_plus, node.u_y_plus_, cquad4_panel.n_, omega)
+    p_unst_neg_y = local_piston_theory(node.p_y_plus, node.rho_y_plus, node.a_y_plus, node.u_y_plus_, cquad4_panel.n_, omega)
+
+    p_unst = p_unst_pos_y - p_unst_neg_y #MIGHT NEED TO CHECK SIGNS
+
+    dF_panel = -p_unst*cquad4_panel.n_*cquad4_panel.jacobian
     
-    for cquad4_panel in cquad4_panels:
+    ### put node shape function in node+ ?
+    # F on node += node.shape_func + dF_panel
 
-        cquad4_panel.n_
-        for node in cquad4_panel:
-            p_unst = local_piston_theory(node, cquad4_panel.n_, omega)
-
-            dF_panel = -p_unst*cquad4_panel.n_*cquad4_panel.jacobian
-            
-            ### put node shape function in node+ ?
-            # F on node += node.shape_func + dF_panel
+    F = 
 
         
-    x=1
+    return F
 
 
 
@@ -84,72 +96,63 @@ def solve_aero_force(nodes, cquad4_panels, omega):
 
 
 
-
-
-
-
-def format_unsteady_aero_matrix(self, Q_phys_unordered, phi):
+### BAD!!!
+def format_unsteady_aero_matrix(force_dof_map, nodes):
 
     ### REORDER DOFS TO MATCH NASTRAN DOF
-    Q_phys = 1
+    Q_modal = 1
 
 
     ### TRANSFORM AERO MATRIX TO MODAL SPACE
-    Q_modal = utils.trans_matrix_phys_to_modal(phi, Q_phys)
+    #Q_modal = utils.trans_matrix_phys_to_modal(phi, Q_phys)
     return Q_modal
 
 
 
 
 ### BUILD AERO MATRIX IN FREQUENCY DOMAIN AND PHYSICAL SPACE
-def build_unsteady_aero_matrix(self, omega_guess):
+def build_unsteady_aero_matrix(omega_guess, nodes, cquad4_panels):
 
-    Q_phys_unordered = []
+    force_dof_map = defaultdict(lambda: np.zeros(6)) #KEY - node id, #VALUE - array 6 items each corresponding to a dof
+        
+    for cquad4_panel in cquad4_panels:
 
-    """
-    for every aero panel:
-        for every node in aero panel
-            call the local piston theory on every node in the aero panel to get unsteady pressure
+        cquad4_panel.n_
 
+        F_1 = solve_aero_force(omega_guess, (-1/np.sqrt(3)), (-1/np.sqrt(3)), cquad4_panel.n1, cquad4_panel)
+        elastic_axis_arm_1 = struct.solve_elastic_axis_isotropic_fin
+        #add panel contribution to the total force on the node:
+        #                       X,      Y, Z,                    Mx, My,                      Mz
+        force_dof_map{n1id} += [ 0, F_1, 0, (0.5*cquad4_panel.t*F_1), 0, (elastic_axis_arm_1*F_1) ]
 
-            jacobian = panel.compute_jacobian() #solve jacobian per panel
-            df = -p_param * panel.n_*jacobian # solve dF of node
+        F_2 =solve_aero_force(omega_guess, (1/np.sqrt(3)), (-1/np.sqrt(3)), cquad4_panel.n2, cquad4_panel)
+        elastic_axis_arm_2 = struct.solve_elastic_axis_isotropic_fin
+        force_dof_map{n2id} += [ 0, F_2, 0, (0.5*cquad4_panel.t*F_2), 0, (elastic_axis_arm_2*F_2) ] 
 
-            -numerically integrate force per node --> 
-            -add panel contribution to the total force on the node
+        F_3 =solve_aero_force(omega_guess, (1/np.sqrt(3)), (1/np.sqrt(3)), cquad4_panel.n3, cquad4_panel)
+        elastic_axis_arm_3= struct.solve_elastic_axis_isotropic_fin
+        force_dof_map{n3id} += [ 0, F_3, 0, (0.5*cquad4_panel.t*F_3), 0, (elastic_axis_arm_3*F_3) ] 
 
+        F_4 =solve_aero_force(omega_guess, (-1/np.sqrt(3)), (1/np.sqrt(3)), cquad4_panel.n4, cquad4_panel)
+        elastic_axis_arm_4 = struct.solve_elastic_axis_isotropic_fin
+        force_dof_map{n4id} += [ 0, F_4, 0, (0.5*cquad4_panel.t*F_4), 0, (elastic_axis_arm_4*F_4) ] 
 
-    for every node: 
-        Q_phys_unordered.append(aero_force_on_node_from_panel) #append force per node to Q_phys_unordered!
-
-    """
-    #NO: NOT THIS SIMPLE, NEED TO KNOW TORISIONAL AND FLEXURAL AXIS and solve moment
-####
-###
-##
-#
-
-    #Q_phys_unordered = np.array([]) convert to np array
-    phi = 1
-
-    Q_modal = self.format_unsteady_aero_matrix(Q_phys_unordered, phi)
+    Q_modal = format_unsteady_aero_matrix(force_dof_map, nodes)
     return Q_modal
 
 
-
-def frequency_match(self, omega_natural_frequency):
+# start by guessing with natural frequency of mode
+def frequency_match(omega_guess, nodes, cquad4_panels, KGG_modal, MGG_modal, omega_pcnt_conv, max_iter):
             
-    # start by guessing with natural frequency of mode
-    omega_guess = omega_natural_frequency
     omega_percent_difference = 1
 
     iter = 0
-    while iter <= self.max_iter:
+    while iter <= max_iter:
 
-        Q = self.build_unsteady_aero_matrix(omega_guess)
+        Q_modal = build_unsteady_aero_matrix(omega_guess, nodes, cquad4_panels)
 
         # Assemble governing eqn: A = -omega^2 M + i*omega Q + K
-        A = -omega_guess**2 * self.Mgg_modal + 1j * omega_guess * Q + self.Kgg_modal
+        A = -omega_guess**2 * MGG_modal + 1j * omega_guess * Q_modal + KGG_modal
 
         # Solve eigenvalue problem: A * phi = 0
         # Convert to standard eigenproblem (e.g., generalized form: A * x = lambda * B * x)
@@ -162,20 +165,20 @@ def frequency_match(self, omega_natural_frequency):
         phi = eigvecs[:, idx]
 
         # Compute new omega from Rayleigh quotient
-        omega_new = np.sqrt(np.real(np.dot(phi.conj().T, self.Kgg_modal @ phi)) /
-                            np.real(np.dot(phi.conj().T, self.Mgg_modal @ phi)))
+        omega_new = np.sqrt(np.real(np.dot(phi.conj().T, KGG_modal @ phi)) /
+                            np.real(np.dot(phi.conj().T, MGG_modal @ phi)))
 
         # Check convergence
         omega_percent_difference = abs((omega_new - omega_guess) / omega_guess)
         #print(f"Iter {i}: omega = {omega_guess:.4f}, omega_new = {omega_new:.4f}, %diff = {omega_percent_difference*100:.2f}%")
 
-        if omega_percent_difference < self.omega_pcnt_conv:
+        if omega_percent_difference < omega_pcnt_conv:
             return omega_new, phi
 
         omega_guess = omega_new
         iter += 1
 
-    raise RuntimeError(f"ERROR: mode shape at {omega_natural_frequency} Hz failed to converge. No frequency obtained")
+    raise RuntimeError(f"ERROR: mode shape at {omega_guess} Hz failed to converge. No frequency obtained")
     #TODO: more desc!
 
 

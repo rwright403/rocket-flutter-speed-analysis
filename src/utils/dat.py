@@ -28,19 +28,26 @@ class NASTRANsol103:
     #TODO: ADD NODE KEY
 
 
-"""NODE (plus) abstraction """
+"""
+NODE (plus) abstraction 
+
+y pos and y neg refer to the sides of the fin the flowfield is sampled at
+"""
 
 class node_plus:
-    def __init__(self, r_=np.ndarray, p=float, rho=float, T=float, u_=float):
+    def __init__(self, r_=np.ndarray, p_y_pos=float, rho_y_pos=float, a_y_pos=float, u_y_pos_=float, p_y_neg=float, rho_y_neg=float, a_y_neg=float, u_y_neg_=float):
 
         self.r_ = r_
 
-        self.p = p
-        self.rho = rho
-        self.a = np.sqrt(GAMMA*R_SPEC_AIR*T) #NOTE: Assuming ideal gas
-        self.u_ = u_
+        self.p_y_pos = p_y_pos
+        self.rho_y_pos = rho_y_pos
+        self.a_y_pos = a_y_pos
+        self.u_y_pos_ = u_y_pos_
 
-        self.F_aero_: np.ndarray = np.array([0,0,0]) #NOTE: SEE NOTEBOOK, I DONT LIKE THIS
+        self.p_y_neg = p_y_neg
+        self.rho_y_neg = rho_y_neg
+        self.a_y_neg = a_y_neg
+        self.u_y_neg_ = u_y_neg_
 
 
 
@@ -101,4 +108,5 @@ class cquad4_panel:
 
         self.n_ = self.solve_unit_normal_vec()
         self.jacobian = self.compute_jacobian()
+        self.t = elem.t
 
