@@ -1,144 +1,112 @@
 import numpy as np
-import pyvista as pv
 from pathlib import Path
+import os
 import importlib
 from pyNastran.bdf.bdf import BDF
 from pyNastran.op2.op2 import OP2
 from src.utils import utils, dat
 
 
-#phi = np.column_stack(mode_shapes)
-
-# this is a class so i can access the data inside
-
-class preprocess:
-    def __init__(self, input_file):
-
-        # Dynamically import the input file
-        self.program_input = importlib.import_module(f"src.inputs.{input_file}")
-
-        self.model = None
-        self.results = None
-        self.phi = None
-        self.KGG = None
-        self.MGG = None
-
-        self.read_nastran()
-
-        
-        self.openfoam_cases = {}
-
-        for freestream_vel, path in self.program_input.openfoam_files.items():
-            self.openfoam_cases[freestream_vel] = self.read_openfoam(path)
-
-        self.freestream_speeds = self.get_freestream_speeds()
-        
-
-
-
 ### NASTRAN 
-    def read_nastran(self):
-        ## I/O
-        if not Path(self.program_input.nastran_bdf_path).exists():
-            raise FileNotFoundError(f"Input BDF file not found: {self.program_input.nastran_bdf_path}")
-        bdf_path = self.program_input.nastran_bdf_path
+def read_nastran(input_module, self):
+    program_input = importlib.import_module(f"src.inputs.{input_module}")
+    
+    ## I/O
+    if not Path(program_input.nastran_bdf_path).exists():
+        raise FileNotFoundError(f"Input BDF file not found: {program_input.nastran_bdf_path}")
+    bdf_path = program_input.nastran_bdf_path
 
-        if not Path(self.program_input.nastran_op2_path).exists():
-            raise FileNotFoundError(f"Input op2 file not found: {self.program_input.nastran_op2_path}")
-        op2_path = self.program_input.nastran_op2_path
+    if not Path(program_input.nastran_op2_path).exists():
+        raise FileNotFoundError(f"Input op2 file not found: {program_input.nastran_op2_path}")
+    op2_path = program_input.nastran_op2_path
 
-        if not Path(self.program_input.nastran_mat_path).exists():
-            raise FileNotFoundError(f"Input mat file not found: {self.program_input.nastran_mat_path}")
-        full_mat_path = self.program_input.nastran_mat_path
-
-
-        ## Read
-        with utils.runtime("read .bdf"):       # FEM
-            self.model = BDF()
-            self.model.read_bdf(bdf_path)
-            
-        with utils.runtime("read .op2"):       # mode shapes and eigenvectors
-            self.results = OP2()
-            self.results.read_op2(op2_path) #, build_dataframe=True)
-
-            modes = self.results.eigenvectors  # dict: {subcase_id: EigenvectorObject}
-
-            # Get first subcase mode shapes matrix (modes for each DOF and mode)
-            first_subcase_id = list(modes.keys())[0]
-            mode_obj = modes[first_subcase_id]
-
-            print("Type of mode_obj:", type(mode_obj))
-
-            # Each mode is stored separately, so we extract all displacement vectors
-            n_modes, n_nodes, n_dofs_per_node = mode_obj.data.shape
-
-            # Each mode's shape: (n_nodes * 6,) flattened displacement
-            phi_list = [
-                mode_obj.data[i_mode].reshape(-1)  # Flatten to (n_nodes*6,)
-                for i_mode in range(n_modes)
-            ]
-
-            self.phi = np.column_stack(phi_list)  # shape: (n_dofs, n_modes)
-            #print("phi shape:", self.phi.shape)
+    if not Path(program_input.nastran_mat_path).exists():
+        raise FileNotFoundError(f"Input mat file not found: {program_input.nastran_mat_path}")
+    full_mat_path = program_input.nastran_mat_path
 
 
-            
-        with utils.runtime("read .mat"):       # global matrices
-            self.KGG = utils.read_and_parse_mat_file("STIFFNESS",full_mat_path)
-            self.MGG = utils.read_and_parse_mat_file("MASS",full_mat_path)
-            
+
+    ## Read
+    with utils.runtime("read .bdf"):       # FEM
+        model = BDF()
+        model.read_bdf(bdf_path)
+        
+    with utils.runtime("read .op2"):       # mode shapes and eigenvectors
+        results = OP2()
+        results.read_op2(op2_path)
+
+        modes = results.eigenvectors  # dict: {subcase_id: EigenvectorObject}
+
+        # Get first subcase mode shapes matrix (modes for each DOF and mode)
+        first_subcase_id = list(modes.keys())[0]
+        mode_obj = modes[first_subcase_id]
+
+        print("Type of mode_obj:", type(mode_obj))
+
+        # Each mode is stored separately, so we extract all displacement vectors
+        n_modes, n_nodes, n_dofs_per_node = mode_obj.data.shape
+
+        # Each mode's shape: (n_nodes * 6,) flattened displacement
+        phi_list = [
+            mode_obj.data[i_mode].reshape(-1)  # Flatten to (n_nodes*6,)
+            for i_mode in range(n_modes)
+        ]
+
+        phi = np.column_stack(phi_list)  # shape: (n_dofs, n_modes)
+        #print("phi shape:", self.phi.shape)
+
+        
+    with utils.runtime("read .mat"):       # global matrices
+        KGG = utils.read_and_parse_full_matrix("STIFFNESS", full_mat_path)
+        MGG = utils.read_and_parse_full_matrix("MASS", full_mat_path)
+        DOFS = utils.read_and_parse_full_matrix("DOFS", full_mat_path)
+
+    return dat.NASTRANsol103(
+        model,
+        results,
+        phi,
+        KGG,
+        MGG,
+        DOFS,
+    )
 
 ### OpenFOAM
-    def read_openfoam(self, path):
+def read_openfoam_case(path):
+    ## I/O
+    path = Path(path).expanduser()
+    if not path.exists():
+        raise FileNotFoundError(f"Input OpenFoam CFD postProcessing not found: {path}")
 
-        ## I/O
-        if not Path(path).exists():
-            raise FileNotFoundError(f"Input OpenFoam CFD file not found: {path}")
 
-        # Load mesh and field data
-        mesh = pv.read(path)
+    # Extract fields
+    pressures = utils.read_last_probe_column(os.path.expanduser(os.path.join(path, 'p')))         # Pressure
+    densities = utils.read_last_probe_column(os.path.expanduser(os.path.join(path, 'rho')))           # Density
+    velocities = utils.read_last_probe_column(os.path.expanduser(os.path.join(path, 'U')))           # Velocity vector
+    temperatures = utils.read_last_probe_column(os.path.expanduser(os.path.join(path, 'T')))        # Temperature - used to sol Speed of sound
 
-        # Extract fields
-        pressures = mesh.point_data.get('p')           # Pressure
-        densities = mesh.point_data.get('rho')          # Density
-        velocities = mesh.point_data.get('U')           # Velocity vector
-        speeds_of_sound = mesh.point_data.get('a')     # Speed of sound
+    return dat.OpenFOAMcase(
+        #NOTE: SEE NOTE ON PRESSURE REAL: 
+        pressures=pressures, #TODO: THERE WOULD BE 2 PRESSURES,ON ON EACH SIDE OF PLANE SO SHOULD I SUBTRACT THEM HERE AND TAKE DIFFERENCE OF PRESSURE?
+        densities=densities,    #NOTE THERE ARE TWO OF EVERYTHING AND THIS IS FINE JUST DEAL WITH IN LOCAL PISTON THEORY?
+        temperatures=temperatures,
+        velocities=velocities
+    )
 
-        return dat.OpenFOAMcase(
-            #NOTE: SEE NOTE ON PRESSURE REAL: 
-            pressures=pressures, #TODO: THERE WOULD BE 2 PRESSURES,ON ON EACH SIDE OF PLANE SO SHOULD I SUBTRACT THEM HERE AND TAKE DIFFERENCE OF PRESSURE?
-            densities=densities,
-            speeds_of_sound=speeds_of_sound,
-            velocities=velocities
-        )
+def read_openfoam(input_module):
+    program_input = importlib.import_module(f"src.inputs.{input_module}")
+    openfoam_cases = {}
 
-    def get_freestream_speeds(self):
-        return list(self.openfoam_cases.keys())
+    for freestream_vel, path in program_input.openfoam_files.items():
+        #print("path: ", path)
+        openfoam_cases[freestream_vel] = read_openfoam_case(path)
 
-    def build_node_plus_dict(self, cfd_case):
+    return openfoam_cases
 
-        node_ids = sorted(self.model.nodes.keys())
-        coords = np.array([self.model.nodes[nid].xyz for nid in node_ids])
+    """
+    given a min and max frequency, find all modes between and add to a dict where key is nat frequency and item is mode shape
+    """
+def compile_noteworthy_modes(f_min, f_max, results):
 
-        nodes = {}
-        # Build list of node_plus instances
-        for i, nid in enumerate(node_ids):
+    x=1
 
-            nodes[nid] = dat.node_plus(
-                r_=coords[nid],
-                p=(cfd_case.pressure[i]),
-                rho=(cfd_case.density[i]),
-                a=(cfd_case.speed_of_sound[i]),
-                u_= cfd_case.velocity[i],
-            )
-        return nodes
-
-    ### ???
-    def build_cquad4_panel_array(self):
-        panels = []
-
-        for eid, elem in self.model.elements.items():
-            if elem.type == 'CQUAD4':
-                panel = dat.cquad4_panel(elem, nodes)
-                panels.append(panel)
 

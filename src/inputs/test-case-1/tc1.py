@@ -15,10 +15,10 @@ output_filename = "out.csv"
 ### OpenFOAM input files for each relevant flow speed the user wants to analyze:
 # Dictionary format: {freestream velocity speed (m/s) (float): vtk_path (str)}
 openfoam_files = {
-    343 : "~/OpenFOAM/rwright-11/run/Ma1.5_AoA0_R4_rhoPimpleFoam/VTK/Ma1.5_AoA0_R4_rhoPimpleFoam_896.vtk",
+    400 : "~/rocket-flutter-speed-analysis/openfoam_cases/[3]-80-pcnt-test-fin/postProcessing/sample/0/",
     # Add more entries like:
-    # 686 : "~/OpenFOAM/.../Ma2.0_case.vtk",
-    # 1029: "~/OpenFOAM/.../Ma3.0_case.vtk"
+    # 686 : "~/rocket-flutter-speed-analysis/openfoam_cases/[3]-80-pcnt-test-fin/.../0/",
+    # 1029: "~/rocket-flutter-speed-analysis/openfoam_cases/[3]-80-pcnt-test-fin/.../0/"
 }
 
 ### Altair Hyperworks (NASTRAN) input files:

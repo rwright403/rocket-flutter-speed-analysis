@@ -2,7 +2,9 @@
     "workbench.colorTheme": "Cosy Orange Theme",  // Change this to your preferred theme
    
     "files.associations": {
-        "*.bdf": "nastran"  // Associate .bdf files with the "nastran" language
+        "*.bdf": "nastran",
+        "controldict": "cpp",
+        "fvsolution": "cpp"
     },
 
     "editor.tokenColorCustomizations": {

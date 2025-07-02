@@ -117,7 +117,7 @@ def write_sample_dict(points, output_path):
     body += "        (\n"
     body += "            p\n"
     body += "            rho\n"
-    body += "            a\n"
+    body += "            T\n"
     body += "            U\n"
     body += "        );\n"
     body += "    }\n"

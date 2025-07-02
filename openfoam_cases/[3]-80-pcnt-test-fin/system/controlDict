@@ -1,12 +1,50 @@
-interpolationScheme cellPointFace;
-setFormat raw;
-
-functions
+FoamFile
 {
-    sample
-    {
-        type probes;
-        libs ("libsampling.so");
+    version     11;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+
+application     rhoPimpleFoam;
+
+startFrom       startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         0.1;           // adjust based on your simulation time scale
+
+deltaT          1e-4;        // small timestep for stability in supersonic flow
+
+writeControl    timeStep;
+
+writeInterval   10000;        // write output every 1000 timesteps
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  6;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable true;
+
+functions  
+{  
+    
+    
+    sample  
+    {  
+        type probes;  
+        libs ("libsampling.so");  
         interpolationScheme cellPointFace;
         setFormat raw;
 
@@ -125,13 +163,14 @@ functions
             (0.687047619047619 0.0020000000949949026 0.029333333333333)
             (0.687047619047619 0.0 0.029333333333333)
         );
+
         fields
         (
             p
             rho
-            a
+            T
             U
         );
-    }
-};
 
+    }  
+};

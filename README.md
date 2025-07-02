@@ -142,6 +142,9 @@ TODO: try first tutorial to build an understanding of how all the pieces fit tog
 | [11]   | OS-T: 1110 Modal Analysis Setup | Altair Modal Analysis Setup |https://2021.help.altair.com/2021/hwsolvers/os/topics/solvers/os/modal_analysis_setup_r.htm
 | [12]   | Altair community fourum "How do i export stiffness and mass matrices from Optistruct?" | | https://community.altair.com/discussion/25732/how-do-i-export-stiffness-and-mass-matrices-from-optistruct|
 | [13]   | .mat file format | used to reference for parser |https://2021.help.altair.com/2021/hwsolvers/os/topics/solvers/os/full_mat_file_r.htm |
+| [14]   | NASA turbmodels ONERA M6 Wing  | for CFD setup lessons learned | https://turbmodels.larc.nasa.gov/onerawingnumerics_val.html |
+| [15]   | YT lecture: [CFD] The k - omega SST Turbulence Model | Used to understand turbulence model | https://www.youtube.com/watch?v=myv-ityFnS4 |
+| [16]   | OpenFOAM k-omegasst User Guide | for init | https://www.openfoam.com/documentation/guides/latest/doc/guide-turbulence-ras-k-omega-sst.html | 
 
 <!-- Using a virtual environment to stop this from interfering w other python projects:
 Enter virtual env with 
