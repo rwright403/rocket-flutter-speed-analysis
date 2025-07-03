@@ -55,11 +55,11 @@ def build_cquad4_panel_array(struct_harmonics, nodes):
 
     ### does this work here???? normal vector is an element parameter?
     ### should we create a list of unsteady pressures in the same order as the nastran nodes?
-def local_piston_theory(p, rho, a, u, n_, omega):
+def local_piston_theory(p, rho, a, u, n_, omega, cmplx_amp):
 
-    delta_n_ = 1
+    delta_n_ = - TODO
 
-    u_b_ = omega * 1j #NOTE: WHAT IS q_hat!!!
+    u_b_ = 1j * omega * cmplx_amp
 
     w_ = u_*delta_n_ + u_b_*n_ # type: ignore
 
@@ -70,10 +70,15 @@ def local_piston_theory(p, rho, a, u, n_, omega):
 solve the force of lift contribution from panel on a node
 return aero force
 """
-def solve_aero_force(omega, xi, eta, node, cquad4_panel):
+def solve_aero_force(omega, xi, eta, node, cquad4_panel, cmplx_amp):
         
-    p_unst_pos_y = local_piston_theory(node.p_y_plus, node.rho_y_plus, node.a_y_plus, node.u_y_plus_, cquad4_panel.n_, omega)
-    p_unst_neg_y = local_piston_theory(node.p_y_plus, node.rho_y_plus, node.a_y_plus, node.u_y_plus_, cquad4_panel.n_, omega)
+
+
+        ### not sure if its cmplx_amp or if its mode shape, need to figure out LPT
+
+        
+    p_unst_pos_y = local_piston_theory(node.p_y_plus, node.rho_y_plus, node.a_y_plus, node.u_y_plus_, cquad4_panel.n_, omega, cmplx_amp)
+    p_unst_neg_y = local_piston_theory(node.p_y_plus, node.rho_y_plus, node.a_y_plus, node.u_y_plus_, cquad4_panel.n_, omega, cmplx_amp)
 
     p_unst = p_unst_pos_y - p_unst_neg_y #MIGHT NEED TO CHECK SIGNS
 
@@ -111,7 +116,7 @@ def format_unsteady_aero_matrix(force_dof_map, nodes):
 
 
 ### BUILD AERO MATRIX IN FREQUENCY DOMAIN AND PHYSICAL SPACE
-def build_unsteady_aero_matrix(omega_guess, nodes, cquad4_panels):
+def build_unsteady_aero_matrix(omega_guess, mode_shape, nodes, cquad4_panels):
 
     force_dof_map = defaultdict(lambda: np.zeros(6)) #KEY - node id, #VALUE - array 6 items each corresponding to a dof
         
@@ -119,21 +124,28 @@ def build_unsteady_aero_matrix(omega_guess, nodes, cquad4_panels):
 
         cquad4_panel.n_
 
-        F_1 = solve_aero_force(omega_guess, (-1/np.sqrt(3)), (-1/np.sqrt(3)), cquad4_panel.n1, cquad4_panel)
+        cmplx_amp_n1 = 1 #TODO: EXTRACT COMPLEX AMPLITUDE FROM MODE SHAPE
+        F_1 = solve_aero_force(omega_guess, (-1/np.sqrt(3)), (-1/np.sqrt(3)), cquad4_panel.n1, cquad4_panel, cmplx_amp_n1)
         elastic_axis_arm_1 = struct.solve_elastic_axis_isotropic_fin
         #add panel contribution to the total force on the node:
         #                       X,      Y, Z,                    Mx, My,                      Mz
         force_dof_map{n1id} += [ 0, F_1, 0, (0.5*cquad4_panel.t*F_1), 0, (elastic_axis_arm_1*F_1) ]
 
-        F_2 =solve_aero_force(omega_guess, (1/np.sqrt(3)), (-1/np.sqrt(3)), cquad4_panel.n2, cquad4_panel)
+
+        cmplx_amp_n2 = 1 #TODO: EXTRACT COMPLEX AMPLITUDE FROM MODE SHAPE
+        F_2 =solve_aero_force(omega_guess, (1/np.sqrt(3)), (-1/np.sqrt(3)), cquad4_panel.n2, cquad4_panel, cmplx_amp_n2)
         elastic_axis_arm_2 = struct.solve_elastic_axis_isotropic_fin
         force_dof_map{n2id} += [ 0, F_2, 0, (0.5*cquad4_panel.t*F_2), 0, (elastic_axis_arm_2*F_2) ] 
 
-        F_3 =solve_aero_force(omega_guess, (1/np.sqrt(3)), (1/np.sqrt(3)), cquad4_panel.n3, cquad4_panel)
+
+        cmplx_amp_n3 = 1 #TODO: EXTRACT COMPLEX AMPLITUDE FROM MODE SHAPE
+        F_3 =solve_aero_force(omega_guess, (1/np.sqrt(3)), (1/np.sqrt(3)), cquad4_panel.n3, cquad4_panel, cmplx_amp_n3)
         elastic_axis_arm_3= struct.solve_elastic_axis_isotropic_fin
         force_dof_map{n3id} += [ 0, F_3, 0, (0.5*cquad4_panel.t*F_3), 0, (elastic_axis_arm_3*F_3) ] 
 
-        F_4 =solve_aero_force(omega_guess, (-1/np.sqrt(3)), (1/np.sqrt(3)), cquad4_panel.n4, cquad4_panel)
+
+        cmplx_amp_n4 = 1 #TODO: EXTRACT COMPLEX AMPLITUDE FROM MODE SHAPE
+        F_4 =solve_aero_force(omega_guess, (-1/np.sqrt(3)), (1/np.sqrt(3)), cquad4_panel.n4, cquad4_panel, cmplx_amp_n4)
         elastic_axis_arm_4 = struct.solve_elastic_axis_isotropic_fin
         force_dof_map{n4id} += [ 0, F_4, 0, (0.5*cquad4_panel.t*F_4), 0, (elastic_axis_arm_4*F_4) ] 
 
@@ -142,14 +154,14 @@ def build_unsteady_aero_matrix(omega_guess, nodes, cquad4_panels):
 
 
 # start by guessing with natural frequency of mode
-def frequency_match(omega_guess, nodes, cquad4_panels, KGG_modal, MGG_modal, omega_pcnt_conv, max_iter):
+def frequency_match(omega_guess, mode_shape, nodes, cquad4_panels, KGG_modal, MGG_modal, omega_pcnt_conv, max_iter):
             
     omega_percent_difference = 1
 
     iter = 0
     while iter <= max_iter:
 
-        Q_modal = build_unsteady_aero_matrix(omega_guess, nodes, cquad4_panels)
+        Q_modal = build_unsteady_aero_matrix(omega_guess, mode_shape, nodes, cquad4_panels)
 
         # Assemble governing eqn: A = -omega^2 M + i*omega Q + K
         A = -omega_guess**2 * MGG_modal + 1j * omega_guess * Q_modal + KGG_modal
