@@ -34,9 +34,9 @@ if __name__ == "__main__":
         nodes = aero_model.build_node_plus_dict(openfoam_data) #NOTE: THIS DOES NOT WORK, BECAUSE 2 FLOWFIELD POINTS UNLESS DOUBLE NODES AND DEAL WITH IN LOCAL PISTON THEORY
         cquad4_panels = aero_model.build_cquad4_panel_array(openfoam_data, nodes)
 
-        for nat_freq, mode in noteworthy_modes.items(): # this should be a dict with key as natural frequency - NOTE: need to build based on input range of natural frequencies to check
+        for nat_freq, mode_shape in noteworthy_modes.items(): # this should be a dict with key as natural frequency - NOTE: need to build based on input range of natural frequencies to check
             try:
-                omega = aero_model.frequency_match(nat_freq, nodes, cquad4_panels, KGG_modal, MGG_modal, input_module.omega_pcnt_conv, input_module.max_iter)
+                omega = aero_model.frequency_match(nat_freq, mode_shape, nodes, cquad4_panels, KGG_modal, MGG_modal, input_module.omega_pcnt_conv, input_module.max_iter)
                 omegas.append(omega)
                 freestream_speeds.append(freestream_speed) 
             except RuntimeError: 
