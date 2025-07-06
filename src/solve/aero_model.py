@@ -56,7 +56,11 @@ def build_cquad4_panel_array(struct_harmonics, nodes):
     ### does this work here???? normal vector is an element parameter?
     ### should we create a list of unsteady pressures in the same order as the nastran nodes?
 def local_piston_theory(p, rho, a, u, n_, omega, cmplx_amp):
-
+    ### Issues:
+    """
+    trying to use modal amplitude directly (from p-k thinking)
+    You don’t have displacement or velocity fields explicitly defined,  You don't compute δn at all
+    """
     delta_n_ = - TODO
 
     u_b_ = 1j * omega * cmplx_amp
@@ -76,7 +80,7 @@ def solve_aero_force(omega, xi, eta, node, cquad4_panel, cmplx_amp):
 
         ### not sure if its cmplx_amp or if its mode shape, need to figure out LPT
 
-        
+
     p_unst_pos_y = local_piston_theory(node.p_y_plus, node.rho_y_plus, node.a_y_plus, node.u_y_plus_, cquad4_panel.n_, omega, cmplx_amp)
     p_unst_neg_y = local_piston_theory(node.p_y_plus, node.rho_y_plus, node.a_y_plus, node.u_y_plus_, cquad4_panel.n_, omega, cmplx_amp)
 
@@ -129,25 +133,25 @@ def build_unsteady_aero_matrix(omega_guess, mode_shape, nodes, cquad4_panels):
         elastic_axis_arm_1 = struct.solve_elastic_axis_isotropic_fin
         #add panel contribution to the total force on the node:
         #                       X,      Y, Z,                    Mx, My,                      Mz
-        force_dof_map{n1id} += [ 0, F_1, 0, (0.5*cquad4_panel.t*F_1), 0, (elastic_axis_arm_1*F_1) ]
+        force_dof_map{cquad4_panel.nid1} += [ 0, F_1, 0, (0.5*cquad4_panel.t*F_1), 0, (elastic_axis_arm_1*F_1) ]
 
 
         cmplx_amp_n2 = 1 #TODO: EXTRACT COMPLEX AMPLITUDE FROM MODE SHAPE
         F_2 =solve_aero_force(omega_guess, (1/np.sqrt(3)), (-1/np.sqrt(3)), cquad4_panel.n2, cquad4_panel, cmplx_amp_n2)
         elastic_axis_arm_2 = struct.solve_elastic_axis_isotropic_fin
-        force_dof_map{n2id} += [ 0, F_2, 0, (0.5*cquad4_panel.t*F_2), 0, (elastic_axis_arm_2*F_2) ] 
+        force_dof_map{cquad4_panel.nid2} += [ 0, F_2, 0, (0.5*cquad4_panel.t*F_2), 0, (elastic_axis_arm_2*F_2) ] 
 
 
         cmplx_amp_n3 = 1 #TODO: EXTRACT COMPLEX AMPLITUDE FROM MODE SHAPE
         F_3 =solve_aero_force(omega_guess, (1/np.sqrt(3)), (1/np.sqrt(3)), cquad4_panel.n3, cquad4_panel, cmplx_amp_n3)
         elastic_axis_arm_3= struct.solve_elastic_axis_isotropic_fin
-        force_dof_map{n3id} += [ 0, F_3, 0, (0.5*cquad4_panel.t*F_3), 0, (elastic_axis_arm_3*F_3) ] 
+        force_dof_map{cquad4_panel.nid3} += [ 0, F_3, 0, (0.5*cquad4_panel.t*F_3), 0, (elastic_axis_arm_3*F_3) ] 
 
 
         cmplx_amp_n4 = 1 #TODO: EXTRACT COMPLEX AMPLITUDE FROM MODE SHAPE
         F_4 =solve_aero_force(omega_guess, (-1/np.sqrt(3)), (1/np.sqrt(3)), cquad4_panel.n4, cquad4_panel, cmplx_amp_n4)
         elastic_axis_arm_4 = struct.solve_elastic_axis_isotropic_fin
-        force_dof_map{n4id} += [ 0, F_4, 0, (0.5*cquad4_panel.t*F_4), 0, (elastic_axis_arm_4*F_4) ] 
+        force_dof_map{cquad4_panel.nid4} += [ 0, F_4, 0, (0.5*cquad4_panel.t*F_4), 0, (elastic_axis_arm_4*F_4) ] 
 
     Q_modal = format_unsteady_aero_matrix(force_dof_map, nodes)
     return Q_modal
@@ -161,6 +165,7 @@ def frequency_match(omega_guess, mode_shape, nodes, cquad4_panels, KGG_modal, MG
     iter = 0
     while iter <= max_iter:
 
+        #TODO:
         Q_modal = build_unsteady_aero_matrix(omega_guess, mode_shape, nodes, cquad4_panels)
 
         # Assemble governing eqn: A = -omega^2 M + i*omega Q + K
@@ -192,6 +197,3 @@ def frequency_match(omega_guess, mode_shape, nodes, cquad4_panels, KGG_modal, MG
 
     raise RuntimeError(f"ERROR: mode shape at {omega_guess} Hz failed to converge. No frequency obtained")
     #TODO: more desc!
-
-
-

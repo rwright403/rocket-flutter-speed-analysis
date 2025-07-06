@@ -98,13 +98,13 @@ class cquad4_panel:
 
     def __init__(self, elem, node_lookup: dict[int, node_plus]):
         # Extract node IDs in Nastran's sequential order
-        nid1, nid2, nid3, nid4 = elem.node_ids
+        self.nid1, self.nid2, self.nid3, self.nid4 = elem.node_ids
 
         # Use node_lookup to fetch node_plus instances
-        self.n1 = node_lookup[nid1]
-        self.n2 = node_lookup[nid2]
-        self.n3 = node_lookup[nid3]
-        self.n4 = node_lookup[nid4]
+        self.n1 = node_lookup[self.nid1]
+        self.n2 = node_lookup[self.nid2]
+        self.n3 = node_lookup[self.nid3]
+        self.n4 = node_lookup[self.nid4]
 
         self.n_ = self.solve_unit_normal_vec()
         self.jacobian = self.compute_jacobian()
