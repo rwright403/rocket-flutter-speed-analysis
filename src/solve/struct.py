@@ -1,5 +1,14 @@
 
 
-def solve_elastic_axis_isotropic_fin():
+class iso_fin_elastic_axis:
+    def __init__():
+
+
+
+    
 
     return 1 #RETURN A LIST OF POINTS THAT CAN BE INTERPOLATED BETWEEN
+
+
+
+### make this signed!!!!!

@@ -145,6 +145,8 @@ TODO: try first tutorial to build an understanding of how all the pieces fit tog
 | [14]   | NASA turbmodels ONERA M6 Wing  | for CFD setup lessons learned | https://turbmodels.larc.nasa.gov/onerawingnumerics_val.html |
 | [15]   | YT lecture: [CFD] The k - omega SST Turbulence Model | Used to understand turbulence model | https://www.youtube.com/watch?v=myv-ityFnS4 |
 | [16]   | OpenFOAM k-omegasst User Guide | for init | https://www.openfoam.com/documentation/guides/latest/doc/guide-turbulence-ras-k-omega-sst.html | 
+| [17]   | An Approximate True Damping Solution of the Flutter Equation by Determinant Iteration by Hermann J. Hassig | Understanding the p-k method | https://doi.org/10.2514/3.44311 |
+| [18]   | Implementation of a Solver for Static Aeroelasticity and Flutter Prediction on Light Sport Aircrafts based on VLM, DLM and advanced 1D structural models  | Another look at the p-k method/implementation| http://webthesis.biblio.polito.it/id/eprint/22261 |
 
 <!-- Using a virtual environment to stop this from interfering w other python projects:
 Enter virtual env with 

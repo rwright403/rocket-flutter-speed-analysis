@@ -16,8 +16,11 @@ if __name__ == "__main__":
     ### Preprocess NASTRAN and OpenFOAM
     struct_harmonics = preprocess.read_nastran(input_module)
     openfoam_cases = preprocess.read_openfoam(input_module)
+
+    #TODO:
     noteworthy_modes = preprocess.compile_noteworthy_modes(input_module.f_min, input_module.f_max, struct_harmonics.results)
 
+    #TODO:
     elastic_axis = struct.solve_elastic_axis_isotropic_fin()
     #NOTE: bending_axis for a symmetrical fin on xz plane --> moment arm is just 1/2*t
 
@@ -31,11 +34,13 @@ if __name__ == "__main__":
 
     for freestream_speed, openfoam_data in openfoam_cases.items():
 
-        nodes = aero_model.build_node_plus_dict(openfoam_data) #NOTE: THIS DOES NOT WORK, BECAUSE 2 FLOWFIELD POINTS UNLESS DOUBLE NODES AND DEAL WITH IN LOCAL PISTON THEORY
+        nodes = aero_model.build_node_plus_dict(openfoam_data)
         cquad4_panels = aero_model.build_cquad4_panel_array(openfoam_data, nodes)
 
         for nat_freq, mode_shape in noteworthy_modes.items(): # this should be a dict with key as natural frequency - NOTE: need to build based on input range of natural frequencies to check
             try:
+
+                #TODO:
                 omega = aero_model.frequency_match(nat_freq, mode_shape, nodes, cquad4_panels, KGG_modal, MGG_modal, input_module.omega_pcnt_conv, input_module.max_iter)
                 omegas.append(omega)
                 freestream_speeds.append(freestream_speed) 
