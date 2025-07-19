@@ -1,5 +1,7 @@
-from dataclasses import dataclass
 import numpy as np
+import pandas as pd
+from typing import List
+from dataclasses import dataclass, field
 from scipy.sparse import csr_matrix
 from pyNastran.bdf.bdf import BDF
 from pyNastran.op2.op2 import OP2
@@ -25,7 +27,11 @@ class NASTRANsol103:
     phi: csr_matrix
     KGG: csr_matrix
     MGG: csr_matrix
-    #TODO: ADD NODE KEY
+    DOF: dict[int, int]
+    n_modes = field(init=False)  # This tells dataclass not to expect it during init
+
+    def __post_init__(self):
+        self.n_modes = self.phi.shape[1]
 
 
 """
@@ -33,7 +39,6 @@ NODE (plus) abstraction
 
 y pos and y neg refer to the sides of the fin the flowfield is sampled at
 """
-
 class node_plus:
     def __init__(self, r_=np.ndarray, p_y_pos=float, rho_y_pos=float, a_y_pos=float, u_y_pos_=float, p_y_neg=float, rho_y_neg=float, a_y_neg=float, u_y_neg_=float):
 
@@ -98,15 +103,51 @@ class cquad4_panel:
 
     def __init__(self, elem, node_lookup: dict[int, node_plus]):
         # Extract node IDs in Nastran's sequential order
-        self.nid1, self.nid2, self.nid3, self.nid4 = elem.node_ids
+        nid1, nid2, nid3, nid4 = elem.node_ids
 
         # Use node_lookup to fetch node_plus instances
-        self.n1 = node_lookup[self.nid1]
-        self.n2 = node_lookup[self.nid2]
-        self.n3 = node_lookup[self.nid3]
-        self.n4 = node_lookup[self.nid4]
+        self.nodes = {
+            nid1: node_lookup[nid1],
+            nid2: node_lookup[nid2],
+            nid3: node_lookup[nid3],
+            nid4: node_lookup[nid4]
+        }
 
         self.n_ = self.solve_unit_normal_vec()
         self.jacobian = self.compute_jacobian()
         self.t = elem.t
 
+
+
+### how to handle freestream data, i dont think my current method is sufficient
+
+class FlutterResultsCollector:
+    def __init__(self):
+        self.results = []
+
+    def add_case(self, case: CFDCase, eigvals: np.ndarray):
+        for mode_number, lam in enumerate(eigvals, start=1):
+            sigma = lam.real
+            omega = lam.imag
+            freq = abs(omega) / (2 * np.pi)
+            damping = -sigma / np.sqrt(sigma**2 + omega**2) if omega != 0 else np.nan
+
+            self.results.append({
+                "case_id": case.case_id,
+                "speed": case.V,
+                "Mach": case.Mach,
+                "rho": case.rho,
+                "mode": mode_number,
+                "eigval": lam,
+                "real": sigma,
+                "imag": omega,
+                "freq": freq,
+                "damping": damping
+            })
+
+    def to_dataframe(self) -> pd.DataFrame:
+        return pd.DataFrame(self.results)
+
+    def save_csv(self, filename: str):
+        df = self.to_dataframe()
+        df.to_csv(filename, index=False)
