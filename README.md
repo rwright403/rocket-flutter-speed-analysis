@@ -3,7 +3,9 @@ TODO: LOOK INTO: https://www.youtube.com/watch?v=-M2BOHHkUf4
 
 # rocket-flutter-speed-analysis 🚀
 A loosely coupled flutter speed calculator built using open-source and software available to students (from a student license).
-Based on the method created by [5] where flutter is solved with the state-space method and an aerodynamic model is built with the local piston theory
+
+Based on the method created by [5] where flutter is solved with the state-space method and a linear aerodynamic model is built with the local piston theory
+Created for UVic Rocketry https://onlineacademiccommunity.uvic.ca/rocketry/rockets/ :)
 
 ## Running this program:
 This file takes input in the form of a python module file. 
