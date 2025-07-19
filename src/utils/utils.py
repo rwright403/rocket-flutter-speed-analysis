@@ -27,7 +27,11 @@ def runtime(name="Block"):
 
 
 """
-given a string of the desired matrix and the filepath to a sparse .mat file, read it into python and return a scipy .csr matrix
+given a string of the desired datastructure and the filepath to a sparse full.mat file, read it into python 
+return:
+    the matrices as a scipy .csr matrix 
+    or
+    the DOF map as a dict
 """
 def read_and_parse_full_matrix(mat_str, filepath):
     
@@ -73,12 +77,16 @@ def read_and_parse_full_matrix(mat_str, filepath):
         dofs = []
         while len(dofs) <= num_dofs:
             dofs.extend(map(int, lines[row_idx].strip().split()))
-            row_idx+=1
+            row_idx+=1 # this looks like bad code and it probably is but dont change the algo w/out looking at the DOFS format
 
         dof_map = list(zip(node_ids, dofs))
     
         return dof_map
 
+
+        """
+        below is the regular case for a global matrix. Above is for the DOF MAP
+        """
     else:
         while list(map(int, lines[row_idx].strip().split()))[0] != 0:
 
@@ -90,15 +98,11 @@ def read_and_parse_full_matrix(mat_str, filepath):
             row_idx += 1
 
             # Parse the data row
-            #data_parts = list(map(float, lines[row_idx].strip().split()))
-            ### above does not work because of edge case: ValueError: could not convert string to float: '8.348207789E+07-1.040078924E+05'
             data_parts = list(map(float, re.findall(r'[+-]?\d+\.\d+(?:[Ee][+-]?\d+)?', lines[row_idx].strip())))
 
             #NOTE: -1 to convert from .mat 1-based idx to py 0-based idx
             data_col_idx.append(col - 1)
             data_row_idx.append(row1 - 1)
-            
-            #print(data_parts[0])
 
             data.append(data_parts[0])
 
@@ -122,6 +126,18 @@ def trans_matrix_phys_to_modal(phi,A):
     print("T @ A shape:",  phi.T @ A)
 
     return phi.T @ A @ phi
+
+
+
+def translate_node_force_dict_to_dof_col_vector(force_dof_map):
+    # You probably have a consistent DOF order, e.g., node1: [0–5], node2: [6–11], ...
+    ndof = 6 * len(nodes)
+    f_dof_vec = np.zeros(ndof)
+    for node_id, force in force_dof_map.items():
+        #add logic here if need to sort
+        f_dof_vec[dof_base:dof_base+6] = force
+    return f_dof_vec
+
 
 
 

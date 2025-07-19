@@ -1,4 +1,6 @@
 import argparse
+import numpy as np
+import pandas as pd
 from src.utils import utils
 from src.preprocess import preprocess
 from solve import aero_model, struct
@@ -17,8 +19,9 @@ if __name__ == "__main__":
     struct_harmonics = preprocess.read_nastran(input_module)
     openfoam_cases = preprocess.read_openfoam(input_module)
 
+    ### Initialize Dataframe
+
     #TODO:
-    noteworthy_modes = preprocess.compile_noteworthy_modes(input_module.f_min, input_module.f_max, struct_harmonics.results)
 
     #TODO:
     elastic_axis = struct.solve_elastic_axis_isotropic_fin()
@@ -28,26 +31,32 @@ if __name__ == "__main__":
     KGG_modal = utils.trans_matrix_phys_to_modal(struct_harmonics.phi, struct_harmonics.KGG)
     MGG_modal = utils.trans_matrix_phys_to_modal(struct_harmonics.phi, struct_harmonics.MGG)
 
-    ### P-K Method to sol flutter: 
-    freestream_speeds = []
-    omegas = []
+    ### State Space method to sol Flutter: 
 
+    # i think i need to expand "freestream speed" to freestream conditions
     for freestream_speed, openfoam_data in openfoam_cases.items():
 
         nodes = aero_model.build_node_plus_dict(openfoam_data)
-        cquad4_panels = aero_model.build_cquad4_panel_array(openfoam_data, nodes)
+        cquad4_panels = aero_model.build_cquad4_panel_array(struct_harmonics.model.elements, nodes)
+        
 
-        for nat_freq, mode_shape in noteworthy_modes.items(): # this should be a dict with key as natural frequency - NOTE: need to build based on input range of natural frequencies to check
-            try:
+        A = (rho_frestream * V**2 / Ma_ref) * aero_model.build_aero_matrix(struct_harmonics.n_modes, nodes, cquad4_panels, struct_harmonics.phi, aero_model.local_piston_theory_disp)
+        B = (rho * V / Ma_ref) * aero_model.build_aero_matrix(struct_harmonics.n_modes, nodes, cquad4_panels, struct_harmonics.phi, aero_model.local_piston_theory_velo)
 
-                #TODO:
-                omega = aero_model.frequency_match(nat_freq, mode_shape, nodes, cquad4_panels, KGG_modal, MGG_modal, input_module.omega_pcnt_conv, input_module.max_iter)
-                omegas.append(omega)
-                freestream_speeds.append(freestream_speed) 
-            except RuntimeError: 
-                print(f"ERROR: mode shape at {nat_freq} Hz failed to converge. No frequency obtained")
+        C = np.block([
+            [np.zeros((struct_harmonics.n_modes, struct_harmonics.n_modes)), np.eye(struct_harmonics.n_modes)],
+            [np.linalg.solve(MGG_modal, A - KGG_modal), np.linalg.solve(MGG_modal, B),]
+
+        ])
+
+        # solve eqn: z_hat * [C] = lambda * z_hat
+        eigvals, _ = np.linalg.eig(C)
 
 
-    ### Postprocessing
-    postprocess.root_locus_plot(freestream_speeds, omegas)
-    postprocess.write_flutter_results_to_csv(freestream_speeds, omegas, input_module.output_filename)
+    ### TODO: CREATE LISTS!!!
+       
+
+    ### Postprocessing 
+
+    #redo this, we are getting a series of eigenvalues per flight speed
+    postprocess.root_locus_plot("""redo this function to take in pandas dataframe)

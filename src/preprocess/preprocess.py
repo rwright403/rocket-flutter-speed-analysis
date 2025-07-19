@@ -85,9 +85,8 @@ def read_openfoam_case(path):
     temperatures = utils.read_last_probe_column(os.path.expanduser(os.path.join(path, 'T')))        # Temperature - used to sol Speed of sound
 
     return dat.OpenFOAMcase(
-        #NOTE: SEE NOTE ON PRESSURE REAL: 
-        pressures=pressures, #TODO: THERE WOULD BE 2 PRESSURES,ON ON EACH SIDE OF PLANE SO SHOULD I SUBTRACT THEM HERE AND TAKE DIFFERENCE OF PRESSURE?
-        densities=densities,    #NOTE THERE ARE TWO OF EVERYTHING AND THIS IS FINE JUST DEAL WITH IN LOCAL PISTON THEORY?
+        pressures=pressures,
+        densities=densities,
         temperatures=temperatures,
         velocities=velocities
     )
@@ -101,12 +100,4 @@ def read_openfoam(input_module):
         openfoam_cases[freestream_vel] = read_openfoam_case(path)
 
     return openfoam_cases
-
-    """
-    given a min and max frequency, find all modes between and add to a dict where key is nat frequency and item is mode shape
-    """
-def compile_noteworthy_modes(f_min, f_max, results):
-
-    x=1
-
 
