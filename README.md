@@ -1,4 +1,4 @@
-TODO: LOOK INTO: https://www.youtube.com/watch?v=-M2BOHHkUf4 
+<!-- TODO: LOOK INTO: https://www.youtube.com/watch?v=-M2BOHHkUf4 -->
 
 
 # rocket-flutter-speed-analysis 🚀
@@ -93,8 +93,6 @@ First Try: First Order Local Piston Theory, from [5] looks like we will likely w
 To simplify the interpolation between the aero model and the mass model, CQUAD4 elements are used to define "aero panels" where the aero force is taken at the centroid
 - This will simplify the interpolation of unsteady aero force to the grid points
 
-Need to interpolate the aero force from the element centroids to the locations of the structural element nodes. 
-
 For element normal vectors and deflections, taken at element level. Need to solve aero at element node center and interpolate to structural model
 - We can likely use this library https://docs.pyvista.org/examples/01-filter/interpolate
 Note!!!! we are interpolating unsteady force --> complex numbers and vectors. 
@@ -150,6 +148,10 @@ TODO: try first tutorial to build an understanding of how all the pieces fit tog
 | [16]   | OpenFOAM k-omegasst User Guide | for init | https://www.openfoam.com/documentation/guides/latest/doc/guide-turbulence-ras-k-omega-sst.html | 
 | [17]   | An Approximate True Damping Solution of the Flutter Equation by Determinant Iteration by Hermann J. Hassig | Understanding the p-k method | https://doi.org/10.2514/3.44311 |
 | [18]   | Implementation of a Solver for Static Aeroelasticity and Flutter Prediction on Light Sport Aircrafts based on VLM, DLM and advanced 1D structural models  | Another look at the p-k method/implementation| http://webthesis.biblio.polito.it/id/eprint/22261 |
+| [19]   | Flutter Calculation Methods | | https://link.springer.com/content/pdf/10.1007/978-981-16-8078-6_9 |
+| [20]   | Altair Full Mat File | ref for dof mapping | https://2021.help.altair.com/2021/hwsolvers/os/topics/solvers/os/full_mat_file_r.htm |
+
+Note: p-k method not used, just briefly considered and explored
 
 <!-- Using a virtual environment to stop this from interfering w other python projects:
 Enter virtual env with 

@@ -7,7 +7,7 @@ from solve import struct
 """
 Parse the openfoam data and build all the node+ objects
 """
-def build_node_plus_dict(model, openfoam_data):
+def build_node_plus_dict(model, openfoam_case):
 
     node_ids = sorted(model.nodes.keys()) #node_ids arranged in chronological order because openfoam dict in this order
     coords = np.array([model.nodes[nid].xyz for nid in node_ids])
@@ -20,16 +20,16 @@ def build_node_plus_dict(model, openfoam_data):
         nodes[nid] = dat.node_plus(
             r_=coords[nid],
 
-            p_y_plus=(openfoam_data.pressures[j]),
-            rho_y_plus=(openfoam_data.densities[j]),
-            a_y_plus=np.sqrt(dat.GAMMA*openfoam_data.temperatures[j]*dat.R_SPEC_AIR),
-            u_y_plus_= openfoam_data.velocities[j],
+            p_y_plus=(openfoam_case.samplepts.pressures[j]),
+            rho_y_plus=(openfoam_case.samplepts.densities[j]),
+            a_y_plus=np.sqrt(dat.GAMMA*openfoam_case.samplepts.temperatures[j]*dat.R_SPEC_AIR),
+            u_y_plus_= openfoam_case.samplepts.velocities[j],
 
             #the sample point directly below is at the index (opposite side) + 1
-            p_y_neg=(openfoam_data.pressures[j+1]),
-            rho_y_neg=(openfoam_data.densities[j+1]),
-            a_y_neg=np.sqrt(dat.GAMMA*openfoam_data.temperatures[j+1]*dat.R_SPEC_AIR),
-            u_y_neg_= openfoam_data.velocities[j+1],
+            p_y_neg=(openfoam_case.samplepts.pressures[j+1]),
+            rho_y_neg=(openfoam_case.samplepts.densities[j+1]),
+            a_y_neg=np.sqrt(dat.GAMMA*openfoam_case.samplepts.temperatures[j+1]*dat.R_SPEC_AIR),
+            u_y_neg_= openfoam_case.samplepts.velocities[j+1],
         )
         j +=2
 
@@ -55,10 +55,11 @@ def build_cquad4_panel_array(nas_elements, nodes):
 """
 separate disp and velo terms
 """
-def local_piston_theory_disp(p, rho, a, u, cquad4_panel, q_i):
+def local_piston_theory_disp(p, rho, a, u, cquad4_panel, q):
 
-    ### only one general coord will be excited,
+    ### only one dof will be excited
 
+    #TODO: RESOLVE delta_n_ from displaced position
 
 
     w_disp_ = u_*delta_n_ # type: ignore
@@ -66,39 +67,28 @@ def local_piston_theory_disp(p, rho, a, u, cquad4_panel, q_i):
 
 
 
-def local_piston_theory_velo(p, rho, a, u, cquad4_panel, q_i):
+def local_piston_theory_velo(p, rho, a, u, cquad4_panel, q_i, Phi, xi, eta):
 
-    u_b_ = #TODO
+    vel_dof_field = Phi @ q_i
+    u_gauss_velo = np.zeros(3)
+    r_gauss = interpolated_position(xi, eta)
 
-    w_velo_ = u_b_*n_ # type: ignore
-    return p + rho*a*w_velo_# type: ignore
+    for node_idx, nid in enumerate(cquad4_panel.nodes):
+        node = cquad4_panel.nodes[nid]
 
+        dof_offset = 6 * nid
+        v_trans = vel_dof_field[dof_offset + 0 : dof_offset + 3]
+        omega = vel_dof_field[dof_offset + 3 : dof_offset + 6]
+        r_node = node.r_
+        r_rel = r_gauss - r_node
 
+        shape_val = dat.shape_func(node_idx, xi, eta)
+        u_node_velo = shape_val * (v_trans + np.cross(omega, r_rel))
+        u_gauss_velo += u_node_velo
 
-"""
-solve the force of lift contribution from panel on a node
-return aero force (vector)
-"""
-def solve_aero_force_on_node(node, xi, eta, cquad4_panel, local_piston_theory_func, q_i):
-
-
-    p_unst_pos_y = local_piston_theory_func(node.p_y_plus, node.rho_y_plus, node.a_y_plus, node.u_y_plus_, cquad4_panel, q_i)
-    p_unst_neg_y = local_piston_theory_func(node.p_y_plus, node.rho_y_plus, node.a_y_plus, node.u_y_plus_, cquad4_panel, q_i)
-
-    delta_p_unst = p_unst_pos_y - p_unst_neg_y #MIGHT NEED TO CHECK SIGNS
-
-    dF_panel = -delta_p_unst*cquad4_panel.n_*cquad4_panel.jacobian
-    
-    ### put node shape function in node+ ?
-    # F on node += node.shape_func * dF_panel
-
-    F = shape_func(xi, eta) * dF_panel #TODO: IMPLEMENT SHAPE FUNCTION 
-
-        
-    return F
-
-
-
+    n_vec = cquad4_panel.normal_at(xi, eta) #why????
+    w_velo_ = np.dot(u_gauss_velo, n_vec)
+    return p + rho * a * w_velo_
 
 
 
@@ -110,81 +100,51 @@ def solve_aero_force_on_node(node, xi, eta, cquad4_panel, local_piston_theory_fu
 """
 Build A or B time domain modal aero matrix depending on the local piston theory passed in (displacement or velocity based).
 """
-def build_aero_matrix(n_modes, nodes, cquad4_panels, Phi, LPT_func):
+def build_aero_matrix(n_dofs, nodes, cquad4_panels, phi, grid_to_dof_mapping_mat, LPT_func):
 
-    aero_matrix = np.zeros((n_modes, n_modes))
+    aero_matrix = np.zeros((n_dofs, n_dofs))
+    aero_col = dat.AeroMatColumn(grid_to_dof_mapping_mat)
 
-    for j in range(n_modes):
-        q = np.zeros(n_modes)
-        q[j] = 1.0
-        mode_dof_field = Phi @ q  # convert generalized coords unit displacement or unit velocity to physical space
+    for j in range(n_dofs):
+        q_modal = np.zeros(n_dofs)
+        q_modal[j] = 1.0
+        q_physical = phi @ q_modal
 
-        force_dof_map = defaultdict(lambda: np.zeros(6)) #KEY - node id, #VALUE - array 6 items each corresponding to a dof
 
-        #entering this loop, how do we know which node is excited?
+        #entering this loop, how do we know which dof is excited?
         for cquad4_panel in cquad4_panels:
-            for (node, xi, eta) in [
-                (cquad4_panel.nodes[0].values(), -1/np.sqrt(3), -1/np.sqrt(3)),
-                (cquad4_panel.nodes[1].values(),  1/np.sqrt(3), -1/np.sqrt(3)),
-                (cquad4_panel.nodes[2].values(),  1/np.sqrt(3),  1/np.sqrt(3)),
-                (cquad4_panel.nodes[3].values(), -1/np.sqrt(3),  1/np.sqrt(3)),
-            ]:
-    
-                #how to know if the node is the one that is excited? - can get the node id from keys?
 
-                if node.
+            for node_idx, nid in enumerate(cquad4_panel.nodes):
+                node = cquad4_panel.nodes[nid]
 
-                F_node = solve_aero_force_on_node(
-                    node, xi, eta,
-                    cquad4_panel, LPT_func, q_i
-                )
+                p_unst_pos_y = LPT_func(node.p_y_plus, node.rho_y_plus, node.a_y_plus, node.u_y_plus_, cquad4_panel, q_physical)
+                p_unst_neg_y = LPT_func(node.p_y_neg, node.rho_y_neg, node.a_y_neg, node.u_y_neg_, cquad4_panel, q_physical)
 
-        ### put this inside F_node? i feel like nodal force doesn't make sense its applied to each dof?
-                elastic_axis_arm_1 = struct.solve_elastic_axis_isotropic_fin()
-                #add panel contribution to the total force on the node:
-                #                                         X,         Y,         Z,                    Mx,             My,             Mz
-                #THIS IS WRONG REPLACE W CROSS PRODUCT force_dof_map{cquad4_panel.nid1} += [ F_node[0], F_node[1], F_node[2], (0.5*cquad4_panel.t*F_node[0]), 0, (elastic_axis_arm_1*F_node[2]) ]
+                delta_p_unst = p_unst_pos_y - p_unst_neg_y
+
+#NOTE: I THINK THIS IS WRONG IT SHOULD BE A SUM RIGHT?
+                dF_panel_ = -delta_p_unst*cquad4_panel.n_*cquad4_panel.jacobian
+
+                xi, eta = dat.gauss_coords(node_idx)
+                F_node_ = dat.shape_func(node_idx, xi, eta) * dF_panel_
 
 
-        f_aero_dofs = utils.translate_node_force_dict_to_dof_col_vector(force_dof_map)
-        aero_matrix[:, j] = Phi.T @ f_aero_dofs 
+                #now sol the moments and assemble the vector
+                elastic_axis_arm_1_ = struct.iso_fin_elastic_axis.interpolate_axis(node.r_[1], node.r_[2]) #MAKE THIS A CLASS NOT A FUNCTION
+                moment_arm_ = node.r_ - elastic_axis_arm_1_
 
-    return aero_matrix
+                M_node_ = np.cross(moment_arm_, F_node_)
 
+                # M_y = 0 because no drilling dof!
+                dof_loads = [ F_node_[0], F_node_[1], F_node_[2], M_node_[0], 0, M_node_[2] ]
 
+                aero_col.add_dof_loads(nid, dof_loads)
 
-"""
-    force_dof_map = defaultdict(lambda: np.zeros(6)) #KEY - node id, #VALUE - array 6 items each corresponding to a dof
-        
-    for cquad4_panel in cquad4_panels:
+        #append aero col to aero matrix
 
-        cquad4_panel.n_
+        aero_matrix[:, j] = aero_col.col
+        aero_col.clear()
 
-        cmplx_amp_n1 = 1 #TODO: EXTRACT COMPLEX AMPLITUDE FROM MODE SHAPE
-        F_1 = solve_aero_force_on_node(omega_guess, (-1/np.sqrt(3)), (-1/np.sqrt(3)), cquad4_panel.n1, cquad4_panel, cmplx_amp_n1)
-        elastic_axis_arm_1 = struct.solve_elastic_axis_isotropic_fin
-        #add panel contribution to the total force on the node:
-        #                       X,      Y, Z,                    Mx, My,                      Mz
-#TODO: FIX!        force_dof_map{cquad4_panel.nid1} += [ 0, F_1, 0, (0.5*cquad4_panel.t*F_1), 0, (elastic_axis_arm_1*F_1) ]
+    modal_aero_matrix = phi.T @ aero_matrix @ phi
+    return modal_aero_matrix
 
-
-        cmplx_amp_n2 = 1 #TODO: EXTRACT COMPLEX AMPLITUDE FROM MODE SHAPE
-        F_2 =solve_aero_force_on_node(omega_guess, (1/np.sqrt(3)), (-1/np.sqrt(3)), cquad4_panel.n2, cquad4_panel, cmplx_amp_n2)
-        elastic_axis_arm_2 = struct.solve_elastic_axis_isotropic_fin
-#TODO: FIX!        force_dof_map{cquad4_panel.nid2} += [ 0, F_2, 0, (0.5*cquad4_panel.t*F_2), 0, (elastic_axis_arm_2*F_2) ] 
-
-
-        cmplx_amp_n3 = 1 #TODO: EXTRACT COMPLEX AMPLITUDE FROM MODE SHAPE
-        F_3 =solve_aero_force_on_node(omega_guess, (1/np.sqrt(3)), (1/np.sqrt(3)), cquad4_panel.n3, cquad4_panel, cmplx_amp_n3)
-        elastic_axis_arm_3= struct.solve_elastic_axis_isotropic_fin
-#TODO: FIX!        force_dof_map{cquad4_panel.nid3} += [ 0, F_3, 0, (0.5*cquad4_panel.t*F_3), 0, (elastic_axis_arm_3*F_3) ] 
-
-
-        cmplx_amp_n4 = 1 #TODO: EXTRACT COMPLEX AMPLITUDE FROM MODE SHAPE
-        F_4 =solve_aero_force_on_node(omega_guess, (-1/np.sqrt(3)), (1/np.sqrt(3)), cquad4_panel.n4, cquad4_panel, cmplx_amp_n4)
-        elastic_axis_arm_4 = struct.solve_elastic_axis_isotropic_fin
-#TODO: FIX!        force_dof_map{cquad4_panel.nid4} += [ 0, F_4, 0, (0.5*cquad4_panel.t*F_4), 0, (elastic_axis_arm_4*F_4) ] 
-
-    matrix = format_unsteady_aero_matrix(force_dof_map, nodes)
-    return matrix
-"""
