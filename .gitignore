@@ -2,7 +2,6 @@
 .vscode
 venv/
 /model/test/
-ext/MachLine/
 __pycache__/
 
 _old/
