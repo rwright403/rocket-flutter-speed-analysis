@@ -79,9 +79,10 @@ def read_and_parse_full_matrix(mat_str, filepath):
             dofs.extend(map(int, lines[row_idx].strip().split()))
             row_idx+=1 # this looks like bad code and it probably is but dont change the algo w/out looking at the DOFS format
 
-        dof_map = list(zip(node_ids, dofs))
-    
-        return dof_map
+        # Convert to numpy array: first row node_ids, second row dofs
+        grid_to_dof_mapping_mat = np.array([node_ids[:num_dofs], dofs[:num_dofs]])
+
+        return grid_to_dof_mapping_mat
 
 
         """
@@ -114,32 +115,6 @@ def read_and_parse_full_matrix(mat_str, filepath):
 
 
         return csr_matrix((data, ( np.array(data_row_idx), np.array(data_col_idx) )), shape=shape)
-
-
-"""
-given the mode shape matrix and a global matrix, return the global matrix in modal coords
-"""
-def trans_matrix_phys_to_modal(phi,A):
-
-    print("phi shape:", phi.shape)
-    print("A shape:", A.shape)
-    print("T @ A shape:",  phi.T @ A)
-
-    return phi.T @ A @ phi
-
-
-
-def translate_node_force_dict_to_dof_col_vector(force_dof_map):
-    # You probably have a consistent DOF order, e.g., node1: [0–5], node2: [6–11], ...
-    ndof = 6 * len(nodes)
-    f_dof_vec = np.zeros(ndof)
-    for node_id, force in force_dof_map.items():
-        #add logic here if need to sort
-        f_dof_vec[dof_base:dof_base+6] = force
-    return f_dof_vec
-
-
-
 
 
 """

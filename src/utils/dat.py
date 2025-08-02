@@ -13,11 +13,20 @@ R_SPEC_AIR = 287.0024853 #J/kg
 """OpenFOAM result abstraction"""
 
 @dataclass
-class OpenFOAMcase:
-    pressures: np.ndarray
-    densities: np.ndarray
+class OpenFOAMsamplepts:
+    # sampled CFD flow field on fin OML
+    pressures: np.ndarray 
+    densities: np.ndarray 
     temperatures: np.ndarray
     velocities: np.ndarray
+
+
+@dataclass
+class OpenFOAMcase:
+    V: float               # Freestream speed (m/s)
+    Mach: float            # Freestream Mach number
+    rho: float             # Freestream density (kg/m^3)
+    samplepts: OpenFOAMsamplepts
 
 
 @dataclass
@@ -28,10 +37,32 @@ class NASTRANsol103:
     KGG: csr_matrix
     MGG: csr_matrix
     DOF: dict[int, int]
-    n_modes = field(init=False)  # This tells dataclass not to expect it during init
+    n_dofs: int
 
-    def __post_init__(self):
-        self.n_modes = self.phi.shape[1]
+def gauss_coords(node_idx):
+    gauss_coords_xi = [    
+        -1/np.sqrt(3),    
+        1/np.sqrt(3),
+        1/np.sqrt(3),
+        -1/np.sqrt(3),
+    ]
+
+    gauss_coords_eta = [    
+        -1/np.sqrt(3),    
+        -1/np.sqrt(3),
+        1/np.sqrt(3),
+        1/np.sqrt(3),
+    ]
+    return gauss_coords_xi[node_idx], gauss_coords_eta[node_idx]
+
+def shape_func(node_idx, xi, eta):
+    N = [
+        0.25 * (1 - xi) * (1 - eta),
+        0.25 * (1 + xi) * (1 - eta),
+        0.25 * (1 + xi) * (1 + eta),
+        0.25 * (1 - xi) * (1 + eta),
+    ]
+    return N[node_idx]
 
 
 """
@@ -77,7 +108,7 @@ class cquad4_panel:
     
     def compute_jacobian(self):
 
-        pts = np.array([ self.n1.r_, self.n2.r_, self.n3.r_, self.n4.r_ ])
+        pts = np.array([self.n1.r_, self.n2.r_, self.n3.r_, self.n4.r_])
 
         dN_dxi = np.array([
             -(1-(-1/np.sqrt(3))),   # dN1/dxi at eta = -1/sqrt(3)
@@ -97,7 +128,7 @@ class cquad4_panel:
         dr_deta = np.tensordot(dN_deta, pts, axes=(0,0) )
 
         #jacobian determinate is the mag of cross product
-        normal = np.cross( dr_dxi, dr_deta )
+        normal = np.cross(dr_dxi, dr_deta)
         return np.linalg.norm(normal)
     
 
@@ -118,6 +149,24 @@ class cquad4_panel:
         self.t = elem.t
 
 
+class AeroMatColumn:
+    def __init__(self, grid_to_dof_mapping_mat):
+        self.grid_to_dof_mapping_mat =grid_to_dof_mapping_mat
+        self.col = np.zeros( len(self.grid_to_dof_mapping_mat[0]) )
+
+    def clear(self):
+        self.col.clear()
+
+    def add_dof_loads(self, grid_id, dof_loads):
+        # Find indices where grid_id matches the node ID row
+        indices = np.where(self.grid_to_dof_mapping_mat[0] == grid_id)[0]
+
+        # Add loads to corresponding DOF locations in self.col
+        for i, idx in enumerate(indices):
+            self.col[idx] += dof_loads[i]
+    
+
+
 
 ### how to handle freestream data, i dont think my current method is sufficient
 
@@ -125,7 +174,7 @@ class FlutterResultsCollector:
     def __init__(self):
         self.results = []
 
-    def add_case(self, case: CFDCase, eigvals: np.ndarray):
+    def add_case(self, case: OpenFOAMcase, eigvals: np.ndarray):
         for mode_number, lam in enumerate(eigvals, start=1):
             sigma = lam.real
             omega = lam.imag
@@ -133,12 +182,10 @@ class FlutterResultsCollector:
             damping = -sigma / np.sqrt(sigma**2 + omega**2) if omega != 0 else np.nan
 
             self.results.append({
-                "case_id": case.case_id,
                 "speed": case.V,
                 "Mach": case.Mach,
                 "rho": case.rho,
                 "mode": mode_number,
-                "eigval": lam,
                 "real": sigma,
                 "imag": omega,
                 "freq": freq,

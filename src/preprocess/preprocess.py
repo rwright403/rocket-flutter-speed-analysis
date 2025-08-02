@@ -46,6 +46,8 @@ def read_nastran(input_module, self):
         # Each mode is stored separately, so we extract all displacement vectors
         n_modes, n_nodes, n_dofs_per_node = mode_obj.data.shape
 
+        n_dofs = n_nodes * n_dofs_per_node
+
         # Each mode's shape: (n_nodes * 6,) flattened displacement
         phi_list = [
             mode_obj.data[i_mode].reshape(-1)  # Flatten to (n_nodes*6,)
@@ -68,10 +70,11 @@ def read_nastran(input_module, self):
         KGG,
         MGG,
         DOFS,
+        n_dofs,
     )
 
 ### OpenFOAM
-def read_openfoam_case(path):
+def read_openfoam_samplepts(path):
     ## I/O
     path = Path(path).expanduser()
     if not path.exists():
@@ -84,7 +87,7 @@ def read_openfoam_case(path):
     velocities = utils.read_last_probe_column(os.path.expanduser(os.path.join(path, 'U')))           # Velocity vector
     temperatures = utils.read_last_probe_column(os.path.expanduser(os.path.join(path, 'T')))        # Temperature - used to sol Speed of sound
 
-    return dat.OpenFOAMcase(
+    return dat.OpenFOAMsamplepts(
         pressures=pressures,
         densities=densities,
         temperatures=temperatures,
@@ -93,11 +96,19 @@ def read_openfoam_case(path):
 
 def read_openfoam(input_module):
     program_input = importlib.import_module(f"src.inputs.{input_module}")
-    openfoam_cases = {}
+    openfoam_cases = []
 
-    for freestream_vel, path in program_input.openfoam_files.items():
+    for openfoam_input in program_input.openfoam_inputs:
+        case = dat.OpenFOAMcase(
+            V = openfoam_input[0]
+            Ma = openfoam_input[1]
+            rho = openfoam_input[2]
+            samplepts = read_openfoam_samplepts(openfoam_input[3])
+        )
         #print("path: ", path)
-        openfoam_cases[freestream_vel] = read_openfoam_case(path)
+        openfoam_cases.append(case)
 
     return openfoam_cases
 
+### Ansys
+#def read_ have some options, rewrite read openfoam to be general is probably the best
