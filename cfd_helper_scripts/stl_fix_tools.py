@@ -36,7 +36,7 @@ def scale_stl(filepath, multiplied_scale_factor, output_file):
 ### NOTE: don't forget to cd into this dir!
 original_stl_filepath = r"a2-a000-cfddomain.STL"
 scaled_stl_filepath = "tmp-scaled.STL"
-shifted_stl_filepath = "A2-final-processed-stl.STL"
+shifted_stl_filepath = "A2-final-processed.STL"
 
 scale_stl(original_stl_filepath, (1/1000), scaled_stl_filepath)
-shift_stl(scaled_stl_filepath, 3, (-201.4891/1000), (-254.6285 /1000), shifted_stl_filepath)
+shift_stl(scaled_stl_filepath, 3, (-0.202311), (-0.202311), shifted_stl_filepath)

@@ -1,24 +1,60 @@
 import matplotlib.pyplot as plt
 import csv
 
-def v_f_v_g_plot():
-    x=1
+def v_f_v_g_plot(df):
+    """
+    Plots Velocity vs Frequency and Velocity vs Damping for each mode.
+    """
+    modes = df['mode'].unique()
+    modes.sort()
 
-def root_locus_plot(freestream_speeds, omegas):
-    real_parts = [omega.real for omega in omegas]
-    imag_parts = [omega.imag for omega in omegas]
+    _, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 10), sharex=True)
 
+    for mode in modes:
+        mode_df = df[df['mode'] == mode].sort_values('speed')
+        ax1.plot(mode_df['speed'], mode_df['freq'], marker='o', label=f"Mode {mode}")
+        ax2.plot(mode_df['speed'], mode_df['damping'], marker='o', label=f"Mode {mode}")
 
-    # Plot
+    ax1.set_ylabel("Frequency [Hz]")
+    ax1.set_title("Velocity vs Frequency (V-f)")
+    ax1.grid(True)
+    ax1.legend()
+
+    ax2.set_xlabel("Velocity [m/s]")
+    ax2.set_ylabel("Damping Ratio")
+    ax2.set_title("Velocity vs Damping (V-g)")
+    ax2.axhline(0, color='red', linestyle='--', label='Neutral Damping')
+    ax2.grid(True)
+    ax2.legend()
+
+    plt.tight_layout()
+    plt.show()
+
+def root_locus_plot(df):
+    """
+    Plot the root locus from a DataFrame containing flutter analysis results.
+    Expects columns: 'real', 'imag', 'speed'
+    """
+    real_parts = df['real']
+    imag_parts = df['imag']
+    speeds = df['speed']
+
     plt.figure(figsize=(10, 6))
-    sc = plt.scatter(real_parts, imag_parts, c=freestream_speeds, cmap='viridis', s=100, edgecolor='black')
+    sc = plt.scatter(
+        real_parts, imag_parts,
+        c=speeds,
+        cmap='viridis',
+        s=100,
+        edgecolors='black'
+    )
 
-    plt.xlabel("Real(ω) [Damping]")
-    plt.ylabel("Imag(ω) [Oscillation Frequency]")
-    plt.title("Root Locus of Flutter Modes vs Flow velocity")
+    plt.xlabel("Real(λ) [Damping]")
+    plt.ylabel("Imag(λ) [Oscillation Frequency]")
+    plt.title("Root Locus of Flutter Modes vs Flow Velocity")
     plt.axvline(0, color='red', linestyle='--', label='Neutral Damping')
     plt.grid(True)
-    plt.colorbar(sc, label="Flow velocity (U)")
+    cbar = plt.colorbar(sc)
+    cbar.set_label("Flow Velocity (U)")
     plt.legend()
     plt.tight_layout()
     plt.show()
@@ -33,21 +69,3 @@ def write_flutter_results_to_csv(freestream_speeds, omegas, filename):
                 writer.writerow([u, omega.real, omega.imag])
         
     print(f"Flutter results written to '{filename}'")
-
-
-"""
-### Testing:
-
-# Example data
-freestream_speeds = np.array([50, 50, 60, 60, 70, 70])
-omegas = np.array([
-    complex(-0.15, -20.0),
-    complex(-0.12, -11.3),
-    complex(-0.05, 0.1),
-    complex(-0.01, 4.0),
-    complex(0.05, 12.2),
-    complex(0.12, 26.0)
-])
-
-root_locus_plot(freestream_speeds, omegas)
-"""
