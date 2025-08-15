@@ -55,7 +55,7 @@ def build_cquad4_panel_array(nas_elements, nodes):
 """
 separate disp and velo terms
 """
-def local_piston_theory_disp(p, rho, a, u, cquad4_panel, q):
+def local_piston_theory_disp(cquad4_panel, q_physical, grid_to_dof_mapping_mat):
 
     ### only one dof will be excited
 
@@ -67,28 +67,49 @@ def local_piston_theory_disp(p, rho, a, u, cquad4_panel, q):
 
 
 
-def local_piston_theory_velo(p, rho, a, u, cquad4_panel, q_i, Phi, xi, eta):
+def local_piston_theory_velo(cquad4_panel, q_physical, grid_to_dof_mapping_mat):
 
-    vel_dof_field = Phi @ q_i
-    u_gauss_velo = np.zeros(3)
-    r_gauss = interpolated_position(xi, eta)
+    delta_P_panel = 0.0
+
+    rho_panel_pos = 0.0
+    a_panel_pos = 0.0
+    rho_panel_neg = 0.0
+    a_panel_neg = 0.0
+
+    v_b_ = np.zeros(3)
 
     for node_idx, nid in enumerate(cquad4_panel.nodes):
         node = cquad4_panel.nodes[nid]
 
-        dof_offset = 6 * nid
-        v_trans = vel_dof_field[dof_offset + 0 : dof_offset + 3]
-        omega = vel_dof_field[dof_offset + 3 : dof_offset + 6]
-        r_node = node.r_
-        r_rel = r_gauss - r_node
+        #look up node dofs x,y,z,Rx,Ry,Rz from q_physical with grid_to_dof_mapping_mat
+        idx = np.where(grid_to_dof_mapping_mat[0, :] == nid)[0][0]
 
-        shape_val = dat.shape_func(node_idx, xi, eta)
-        u_node_velo = shape_val * (v_trans + np.cross(omega, r_rel))
-        u_gauss_velo += u_node_velo
+        # Extract the 6 DOFs for this node as a NumPy array slice
+        dofs = q_physical[idx : idx + 6]
 
-    n_vec = cquad4_panel.normal_at(xi, eta) #why????
-    w_velo_ = np.dot(u_gauss_velo, n_vec)
-    return p + rho * a * w_velo_
+        # First 3 are translational velocities
+        v_i_ = dofs[:3]
+
+        # Next 3 are rotational velocities
+        omega_i_ = dofs[3:6]
+
+        xi, eta = dat.gauss_coords(node_idx)
+
+
+        delta_P_panel +=  dat.shape_func(node_idx, xi, eta) * (node.p_y_pos - node.p_y_neg)
+
+        rho_panel_pos += dat.shape_func(node_idx, xi, eta) * node.rho_y_pos
+        a_panel_pos += dat.shape_func(node_idx, xi, eta) * node.a_y_pos
+        rho_panel_neg += dat.shape_func(node_idx, xi, eta) * node.rho_y_neg
+        a_panel_neg += dat.shape_func(node_idx, xi, eta) * node.a_y_neg
+
+        v_b_ += dat.shape_func(node_idx, xi, eta) * (v_i_ + omega_i_*(cquad4_panel.centroid-node.r_))
+        
+    w_velo_ = np.dot(v_b_, cquad4_panel.n_)
+
+    delta_p_unst_velo = delta_P_panel + (rho_panel_pos*a_panel_pos + rho_panel_neg*a_panel_neg)*w_velo_
+
+    return delta_p_unst_velo
 
 
 
@@ -114,17 +135,15 @@ def build_aero_matrix(n_dofs, nodes, cquad4_panels, phi, grid_to_dof_mapping_mat
         #entering this loop, how do we know which dof is excited?
         for cquad4_panel in cquad4_panels:
 
+            #NO: I THINK THE LOCAL PISTON THEORY SHOULD BE OUTSIDE OF THE NODE_IDX LOOP ON THE PANEL LEVEL
+            delta_p_unst = LPT_func(cquad4_panel, q_physical, grid_to_dof_mapping_mat)
+
+            dF_panel_ = -delta_p_unst*cquad4_panel.n_*cquad4_panel.jacobian
+
+
             for node_idx, nid in enumerate(cquad4_panel.nodes):
                 node = cquad4_panel.nodes[nid]
-
-                p_unst_pos_y = LPT_func(node.p_y_plus, node.rho_y_plus, node.a_y_plus, node.u_y_plus_, cquad4_panel, q_physical)
-                p_unst_neg_y = LPT_func(node.p_y_neg, node.rho_y_neg, node.a_y_neg, node.u_y_neg_, cquad4_panel, q_physical)
-
-                delta_p_unst = p_unst_pos_y - p_unst_neg_y
-
-#NOTE: I THINK THIS IS WRONG IT SHOULD BE A SUM RIGHT?
-                dF_panel_ = -delta_p_unst*cquad4_panel.n_*cquad4_panel.jacobian
-
+                
                 xi, eta = dat.gauss_coords(node_idx)
                 F_node_ = dat.shape_func(node_idx, xi, eta) * dF_panel_
 
@@ -140,11 +159,8 @@ def build_aero_matrix(n_dofs, nodes, cquad4_panels, phi, grid_to_dof_mapping_mat
 
                 aero_col.add_dof_loads(nid, dof_loads)
 
-        #append aero col to aero matrix
-
         aero_matrix[:, j] = aero_col.col
         aero_col.clear()
 
     modal_aero_matrix = phi.T @ aero_matrix @ phi
     return modal_aero_matrix
-

@@ -69,3 +69,4 @@ if __name__ == "__main__":
     df = collector.to_dataframe()
     collector.save_csv("flutter_results.csv")
     postprocess.root_locus_plot(df) #TODO: REDO THIS TO TAKE IN THE DATAFRAME NOT WHATEVER LEGACY
+    postprocess.v_f_v_g_plot(df)

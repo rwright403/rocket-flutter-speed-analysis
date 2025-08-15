@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from src.utils import utils, dat
 from typing import List
 from dataclasses import dataclass, field
 from scipy.sparse import csr_matrix
@@ -99,6 +100,14 @@ class node_plus:
 # Local Piston Theory (1st order assuming harmonic motion)  --> element normal vector in this scope? or can we pass it in and call per node of element?
 
 class cquad4_panel:
+    def solve_centroid(self):
+        centroid = np.zeros(3)
+        for node_idx, nid in enumerate(cquad4_panel.nodes):
+            node = cquad4_panel.nodes[nid]
+            xi, eta = dat.gauss_coords(node_idx)
+            centroid += dat.shape_func(node_idx, xi, eta) * node.r_
+        return centroid
+
     def solve_unit_normal_vec(self):
         v1 = self.n2.r_ - self.n1.r_ # type: ignore
         v2 = self.n3.r_ - self.n1.r_ # type: ignore
@@ -144,6 +153,7 @@ class cquad4_panel:
             nid4: node_lookup[nid4]
         }
 
+        self.centroid = self.solve_centroid()
         self.n_ = self.solve_unit_normal_vec()
         self.jacobian = self.compute_jacobian()
         self.t = elem.t
@@ -166,9 +176,6 @@ class AeroMatColumn:
             self.col[idx] += dof_loads[i]
     
 
-
-
-### how to handle freestream data, i dont think my current method is sufficient
 
 class FlutterResultsCollector:
     def __init__(self):
