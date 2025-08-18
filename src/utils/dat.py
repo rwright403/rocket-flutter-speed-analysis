@@ -14,7 +14,7 @@ R_SPEC_AIR = 287.0024853 #J/kg
 """OpenFOAM result abstraction"""
 
 @dataclass
-class OpenFOAMsamplepts:
+class CFDsamplepts:
     # sampled CFD flow field on fin OML
     pressures: np.ndarray 
     densities: np.ndarray 
@@ -23,11 +23,11 @@ class OpenFOAMsamplepts:
 
 
 @dataclass
-class OpenFOAMcase:
+class CFDcase:
     V: float               # Freestream speed (m/s)
     Mach: float            # Freestream Mach number
     rho: float             # Freestream density (kg/m^3)
-    samplepts: OpenFOAMsamplepts
+    samplepts: CFDsamplepts
 
 
 @dataclass
@@ -100,13 +100,13 @@ class node_plus:
 # Local Piston Theory (1st order assuming harmonic motion)  --> element normal vector in this scope? or can we pass it in and call per node of element?
 
 class cquad4_panel:
-    def solve_centroid(self):
-        centroid = np.zeros(3)
+    def solve_center(self):
+        center = np.zeros(3)
         for node_idx, nid in enumerate(cquad4_panel.nodes):
             node = cquad4_panel.nodes[nid]
             xi, eta = dat.gauss_coords(node_idx)
-            centroid += dat.shape_func(node_idx, xi, eta) * node.r_
-        return centroid
+            center += dat.shape_func(node_idx, xi, eta) * node.r_
+        return center
 
     def solve_unit_normal_vec(self):
         v1 = self.n2.r_ - self.n1.r_ # type: ignore
@@ -153,7 +153,7 @@ class cquad4_panel:
             nid4: node_lookup[nid4]
         }
 
-        self.centroid = self.solve_centroid()
+        self.center = self.solve_center()
         self.n_ = self.solve_unit_normal_vec()
         self.jacobian = self.compute_jacobian()
         self.t = elem.t
@@ -181,7 +181,7 @@ class FlutterResultsCollector:
     def __init__(self):
         self.results = []
 
-    def add_case(self, case: OpenFOAMcase, eigvals: np.ndarray):
+    def add_case(self, case: CFDcase, eigvals: np.ndarray):
         for mode_number, lam in enumerate(eigvals, start=1):
             sigma = lam.real
             omega = lam.imag
