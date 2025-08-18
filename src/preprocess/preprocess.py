@@ -73,12 +73,12 @@ def read_nastran(input_module, self):
         n_dofs,
     )
 
-### OpenFOAM
-def read_openfoam_samplepts(path):
+### cfd
+def read_cfd_samplepts(path):
     ## I/O
     path = Path(path).expanduser()
     if not path.exists():
-        raise FileNotFoundError(f"Input OpenFoam CFD postProcessing not found: {path}")
+        raise FileNotFoundError(f"Input CFD postProcessing not found: {path}")
 
 
     # Extract fields
@@ -87,30 +87,30 @@ def read_openfoam_samplepts(path):
     velocities = utils.read_last_probe_column(os.path.expanduser(os.path.join(path, 'U')))           # Velocity vector
     temperatures = utils.read_last_probe_column(os.path.expanduser(os.path.join(path, 'T')))        # Temperature - used to sol Speed of sound
 
-    return dat.OpenFOAMsamplepts(
+    return dat.CFDsamplepts(
         pressures=pressures,
         densities=densities,
         temperatures=temperatures,
         velocities=velocities
     )
 
-def read_openfoam(input_module):
+def read_cfd(input_module):
     program_input = importlib.import_module(f"src.inputs.{input_module}")
-    openfoam_cases = []
+    cfd_cases = []
 
-    for openfoam_input in program_input.openfoam_inputs:
-        case = dat.OpenFOAMcase(
-            V = openfoam_input[0]
-            Ma = openfoam_input[1]
-            rho = openfoam_input[2]
-            samplepts = read_openfoam_samplepts(openfoam_input[3])
+    for cfd_input in program_input.cfd_inputs:
+        case = dat.CFDcase(
+            V = cfd_input[0]
+            Ma = cfd_input[1]
+            rho = cfd_input[2]
+            samplepts = read_cfd_samplepts(cfd_input[3])
         )
         #print("path: ", path)
-        openfoam_cases.append(case)
+        cfd_cases.append(case)
 
-    return openfoam_cases
+    return cfd_cases
 
 ### Ansys
-#def read_ have some options, rewrite read openfoam to be general is probably the best  
+#def read_ have some options, rewrite read cfd to be general is probably the best  
 
 #tmp

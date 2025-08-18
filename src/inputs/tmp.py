@@ -14,7 +14,7 @@ output_filename = "out.csv"
 
 ### OpenFOAM input files for each relevant flow speed the user wants to analyze:
 # Dictionary format: {freestream velocity speed (m/s) (float): vtk_path (str)}
-openfoam_files = {
+cfd_files = {
     400 : r"~/rocket-flutter-speed-analysis/openfoam_cases/[3]-80-pcnt-test-fin/postProcessing/sample/0/",
     # Add more entries like:
     # 686 : r"~/OpenFOAM/.../Ma2.0_case.vtk",

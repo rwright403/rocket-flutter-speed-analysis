@@ -14,9 +14,9 @@ if __name__ == "__main__":
     parser.add_argument('input_file', type=str, help='The name of the input file to use (e.g., constants1) without the .py extension')
     input_module = parser.parse_args()
 
-    ### Preprocess NASTRAN and OpenFOAM
+    ### Preprocess NASTRAN and CFD
     struct_harmonics = preprocess.read_nastran(input_module)
-    openfoam_cases = preprocess.read_openfoam(input_module)
+    cfd_cases = preprocess.read_cfd(input_module)
 
 
 #TODO:
@@ -32,7 +32,7 @@ if __name__ == "__main__":
 
     collector = dat.FlutterResultsCollector() #initialize pd dataframe collector
 
-    for case in openfoam_cases:
+    for case in cfd_cases:
 
         nodes = aero_model.build_node_plus_dict(case)
         cquad4_panels = aero_model.build_cquad4_panel_array(struct_harmonics.model.elements, nodes)

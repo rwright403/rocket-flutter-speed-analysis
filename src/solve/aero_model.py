@@ -1,7 +1,5 @@
 import numpy as np
-from numpy.linalg import eig
-from src.utils import utils, dat
-from collections import defaultdict
+from src.utils import dat
 from solve import struct
 
 """
@@ -44,7 +42,7 @@ def build_cquad4_panel_array(nas_elements, nodes):
             cquad4_panel = dat.cquad4_panel(elem, nodes)
             cquad4_panels.append(cquad4_panel)
         else:
-            raise NotImplementedError("Nastran FEM contains elements that are not CQUAD4. This program only supports CQUAD4 elements.")
+            raise NotImplementedError("Input Nastran FEM contains elements that are not CQUAD4. This program only supports CQUAD4 elements.")
 
     return cquad4_panels
 
@@ -57,13 +55,52 @@ separate disp and velo terms
 """
 def local_piston_theory_disp(cquad4_panel, q_physical, grid_to_dof_mapping_mat):
 
-    ### only one dof will be excited
+    delta_P_panel = 0.0
 
-    #TODO: RESOLVE delta_n_ from displaced position
+    rho_panel_pos = 0.0
+    a_panel_pos = 0.0
+    rho_panel_neg = 0.0
+    a_panel_neg = 0.0
+
+    V_panel = np.zeros(3)
+    u_ = np.zeros(3)
+
+    for node_idx, nid in enumerate(cquad4_panel.nodes):
+        node = cquad4_panel.nodes[nid]
+
+        #look up node dofs x,y,z,Rx,Ry,Rz from q_physical with grid_to_dof_mapping_mat
+        idx = np.where(grid_to_dof_mapping_mat[0, :] == nid)[0][0]
+
+        # Extract the 6 DOFs for this node as a NumPy array slice
+        dofs = q_physical[idx : idx + 6]
+
+        # First 3 are translational displacements
+        r_i_ = dofs[:3]
+
+        # Next 3 are rotational displacements
+        theta_i_ = dofs[3:6]
+
+        xi, eta = dat.gauss_coords(node_idx)
 
 
-    w_disp_ = u_*delta_n_ # type: ignore
-    return p + rho*a*w_disp_# type: ignore
+        delta_P_panel += dat.shape_func(node_idx, xi, eta) * (node.p_y_pos - node.p_y_neg)
+
+        rho_panel_pos += dat.shape_func(node_idx, xi, eta) * node.rho_y_pos
+        a_panel_pos += dat.shape_func(node_idx, xi, eta) * node.a_y_pos
+        rho_panel_neg += dat.shape_func(node_idx, xi, eta) * node.rho_y_neg
+        a_panel_neg += dat.shape_func(node_idx, xi, eta) * node.a_y_neg
+
+        #u_ is the vector at the center of the element in the direction of displacement
+        u_ += dat.shape_func(node_idx, xi, eta) * (r_i_ + theta_i_*(cquad4_panel.center - node.r_))
+        V_panel += dat.shape_func(node_idx, xi, eta) * (node.u_y_pos - node.u_y_neg) #check this
+
+    delta_n_ = np.dot(u_,cquad4_panel.n_)*cquad4_panel.n_
+    w_disp_ = np.dot(V_panel, delta_n_)
+
+    delta_p_unst_disp = delta_P_panel + (rho_panel_pos*a_panel_pos + rho_panel_neg*a_panel_neg)*w_disp_
+
+    return delta_p_unst_disp
+
 
 
 
@@ -103,7 +140,7 @@ def local_piston_theory_velo(cquad4_panel, q_physical, grid_to_dof_mapping_mat):
         rho_panel_neg += dat.shape_func(node_idx, xi, eta) * node.rho_y_neg
         a_panel_neg += dat.shape_func(node_idx, xi, eta) * node.a_y_neg
 
-        v_b_ += dat.shape_func(node_idx, xi, eta) * (v_i_ + omega_i_*(cquad4_panel.centroid-node.r_))
+        v_b_ += dat.shape_func(node_idx, xi, eta) * (v_i_ + omega_i_*(cquad4_panel.center - node.r_))
         
     w_velo_ = np.dot(v_b_, cquad4_panel.n_)
 
@@ -114,14 +151,12 @@ def local_piston_theory_velo(cquad4_panel, q_physical, grid_to_dof_mapping_mat):
 
 
 
-
-
-
-
 """
 Build A or B time domain modal aero matrix depending on the local piston theory passed in (displacement or velocity based).
 """
 def build_aero_matrix(n_dofs, nodes, cquad4_panels, phi, grid_to_dof_mapping_mat, LPT_func):
+
+    fin_struct = struct.iso_fin_structural_axis(cquad4_panels)
 
     aero_matrix = np.zeros((n_dofs, n_dofs))
     aero_col = dat.AeroMatColumn(grid_to_dof_mapping_mat)
@@ -143,18 +178,14 @@ def build_aero_matrix(n_dofs, nodes, cquad4_panels, phi, grid_to_dof_mapping_mat
 
             for node_idx, nid in enumerate(cquad4_panel.nodes):
                 node = cquad4_panel.nodes[nid]
-                
+
                 xi, eta = dat.gauss_coords(node_idx)
                 F_node_ = dat.shape_func(node_idx, xi, eta) * dF_panel_
 
+                #now sol the moment arms with the fin struct class and solve the net moment:
+                M_node_ = np.cross(fin_struct.bending_arm(node.r_), F_node_) + np.cross(fin_struct.torision_arm(node.r_), F_node_)
 
-                #now sol the moments and assemble the vector
-                elastic_axis_arm_1_ = struct.iso_fin_elastic_axis.interpolate_axis(node.r_[1], node.r_[2]) #MAKE THIS A CLASS NOT A FUNCTION
-                moment_arm_ = node.r_ - elastic_axis_arm_1_
-
-                M_node_ = np.cross(moment_arm_, F_node_)
-
-                # M_y = 0 because no drilling dof!
+                                                                            # M_y = 0 because no drilling dof!
                 dof_loads = [ F_node_[0], F_node_[1], F_node_[2], M_node_[0], 0, M_node_[2] ]
 
                 aero_col.add_dof_loads(nid, dof_loads)
