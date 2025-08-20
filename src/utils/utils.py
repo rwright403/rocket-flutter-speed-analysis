@@ -3,8 +3,6 @@ from contextlib import contextmanager
 import numpy as np
 from scipy.sparse import csr_matrix
 import re
-import pandas as pd
-from io import StringIO
 
 def _print_stars():
     print("\n" + "*" * 20 + "\n")
@@ -115,22 +113,3 @@ def read_and_parse_full_matrix(mat_str, filepath):
 
 
         return csr_matrix((data, ( np.array(data_row_idx), np.array(data_col_idx) )), shape=shape)
-
-
-"""
-For extracting openfoam flow data at each sample probe
-"""
-def read_last_probe_column(filename):
-    with open(filename, 'r') as f:
-        # Read and filter non-comment lines
-        data_lines = [line for line in f if not line.strip().startswith('#')]
-
-    # Use pandas to parse the filtered lines
-    df = pd.read_csv(
-        StringIO(''.join(data_lines)),
-        delim_whitespace=True, 
-        header=None
-    )
-
-    # Return only the last column (one probe value per time)
-    return df.iloc[:, -1]  # This is a Series

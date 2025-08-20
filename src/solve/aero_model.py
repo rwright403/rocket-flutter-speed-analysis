@@ -48,19 +48,17 @@ def build_cquad4_panel_array(nas_elements, nodes):
 
 
 
+def local_piston_theory_disp(cquad4_panel, q_physical, grid_to_dof_mapping_mat, xi, eta):
+    """
+    Local piston theory (displacement form).
+    Returns Δp_unsteady at one Gauss point (xi, eta).
+    """
 
-### local piston theory! - separate disp and velo terms for the different aero matrices A and B
-"""
-separate disp and velo terms
-"""
-def local_piston_theory_disp(cquad4_panel, q_physical, grid_to_dof_mapping_mat):
+    N = dat.shape_func(xi, eta)
 
     delta_P_panel = 0.0
-
-    rho_panel_pos = 0.0
-    a_panel_pos = 0.0
-    rho_panel_neg = 0.0
-    a_panel_neg = 0.0
+    rho_a_pos = 0.0
+    rho_a_neg = 0.0
 
     V_panel = np.zeros(3)
     u_ = np.zeros(3)
@@ -68,93 +66,75 @@ def local_piston_theory_disp(cquad4_panel, q_physical, grid_to_dof_mapping_mat):
     for node_idx, nid in enumerate(cquad4_panel.nodes):
         node = cquad4_panel.nodes[nid]
 
-        #look up node dofs x,y,z,Rx,Ry,Rz from q_physical with grid_to_dof_mapping_mat
+        # look up node dofs x,y,z,Rx,Ry,Rz from q_physical with grid_to_dof_mapping_mat
         idx = np.where(grid_to_dof_mapping_mat[0, :] == nid)[0][0]
-
-        # Extract the 6 DOFs for this node as a NumPy array slice
         dofs = q_physical[idx : idx + 6]
 
-        # First 3 are translational displacements
-        r_i_ = dofs[:3]
+        r_i_ = dofs[:3]         # translational displacements
+        theta_i_ = dofs[3:6]    # rotational displacements
 
-        # Next 3 are rotational displacements
-        theta_i_ = dofs[3:6]
+        delta_P_panel += N[node_idx] * (node.p_y_pos - node.p_y_neg)
 
-        xi, eta = dat.gauss_coords(node_idx)
+        rho_a_pos += N[node_idx] * (node.rho_y_pos * node.a_y_pos)
+        rho_a_neg += N[node_idx] * (node.rho_y_neg * node.a_y_neg)
 
+        # displacement vector at panel center
+        u_ += N[node_idx] * (r_i_ + np.cross(theta_i_, (cquad4_panel.center - node.r_)))
+        V_panel += N[node_idx] * (node.v_y_pos - node.v_y_neg)
 
-        delta_P_panel += dat.shape_func(node_idx, xi, eta) * (node.p_y_pos - node.p_y_neg)
-
-        rho_panel_pos += dat.shape_func(node_idx, xi, eta) * node.rho_y_pos
-        a_panel_pos += dat.shape_func(node_idx, xi, eta) * node.a_y_pos
-        rho_panel_neg += dat.shape_func(node_idx, xi, eta) * node.rho_y_neg
-        a_panel_neg += dat.shape_func(node_idx, xi, eta) * node.a_y_neg
-
-        #u_ is the vector at the center of the element in the direction of displacement
-        u_ += dat.shape_func(node_idx, xi, eta) * (r_i_ + theta_i_*(cquad4_panel.center - node.r_))
-        V_panel += dat.shape_func(node_idx, xi, eta) * (node.u_y_pos - node.u_y_neg) #check this
-
-    delta_n_ = np.dot(u_,cquad4_panel.n_)*cquad4_panel.n_
+    # normal displacement at this Gauss point
+    delta_n_ = np.dot(u_, cquad4_panel.n_) * cquad4_panel.n_ #vector projection (denom is unit vec so magnitude 1 and div by 1)
     w_disp_ = np.dot(V_panel, delta_n_)
 
-    delta_p_unst_disp = delta_P_panel + (rho_panel_pos*a_panel_pos + rho_panel_neg*a_panel_neg)*w_disp_
+    # Return delta_p at this Gauss point (no integration here!)
+    delta_p_unst_disp = delta_P_panel + (rho_a_pos + rho_a_neg) * w_disp_
 
     return delta_p_unst_disp
 
 
 
 
-def local_piston_theory_velo(cquad4_panel, q_physical, grid_to_dof_mapping_mat):
 
-    delta_P_panel = 0.0
 
-    rho_panel_pos = 0.0
-    a_panel_pos = 0.0
-    rho_panel_neg = 0.0
-    a_panel_neg = 0.0
+def local_piston_theory_velo(cquad4_panel, q_physical, grid_to_dof_mapping_mat, xi, eta):
+    """
+    Evaluate unsteady pressure at one Gauss point (xi, eta) on a CQUAD4 panel.
+    """
+    N = dat.shape_func(xi, eta)
 
+    delta_P_gp = 0.0
+    rho_a_pos = 0.0
+    rho_a_neg = 0.0
     v_b_ = np.zeros(3)
 
     for node_idx, nid in enumerate(cquad4_panel.nodes):
         node = cquad4_panel.nodes[nid]
 
-        #look up node dofs x,y,z,Rx,Ry,Rz from q_physical with grid_to_dof_mapping_mat
+        # look up node DOFs in physical space
         idx = np.where(grid_to_dof_mapping_mat[0, :] == nid)[0][0]
+        dofs = q_physical[idx: idx + 6]
 
-        # Extract the 6 DOFs for this node as a NumPy array slice
-        dofs = q_physical[idx : idx + 6]
+        v_i_ = dofs[:3]      # translational velocities
+        omega_i_ = dofs[3:6] # rotational velocities
 
-        # First 3 are translational velocities
-        v_i_ = dofs[:3]
+        # interpolate panel state
+        delta_P_gp += N[node_idx] * (node.p_y_pos - node.p_y_neg)
+        rho_a_pos  += N[node_idx] * (node.rho_y_pos * node.a_y_pos)
+        rho_a_neg  += N[node_idx] * (node.rho_y_neg * node.a_y_neg)
+        v_b_       += N[node_idx] * (v_i_ + np.cross(omega_i_, (cquad4_panel.center - node.r_)))
 
-        # Next 3 are rotational velocities
-        omega_i_ = dofs[3:6]
-
-        xi, eta = dat.gauss_coords(node_idx)
-
-
-        delta_P_panel +=  dat.shape_func(node_idx, xi, eta) * (node.p_y_pos - node.p_y_neg)
-
-        rho_panel_pos += dat.shape_func(node_idx, xi, eta) * node.rho_y_pos
-        a_panel_pos += dat.shape_func(node_idx, xi, eta) * node.a_y_pos
-        rho_panel_neg += dat.shape_func(node_idx, xi, eta) * node.rho_y_neg
-        a_panel_neg += dat.shape_func(node_idx, xi, eta) * node.a_y_neg
-
-        v_b_ += dat.shape_func(node_idx, xi, eta) * (v_i_ + omega_i_*(cquad4_panel.center - node.r_))
-        
+    # normal velocity at Gauss point
     w_velo_ = np.dot(v_b_, cquad4_panel.n_)
 
-    delta_p_unst_velo = delta_P_panel + (rho_panel_pos*a_panel_pos + rho_panel_neg*a_panel_neg)*w_velo_
+    # unsteady pressure at this Gauss point
+    delta_p_gp = delta_P_gp + (rho_a_pos + rho_a_neg) * w_velo_
 
-    return delta_p_unst_velo
+    return delta_p_gp
 
 
 
 
-"""
-Build A or B time domain modal aero matrix depending on the local piston theory passed in (displacement or velocity based).
-"""
-def build_aero_matrix(n_dofs, nodes, cquad4_panels, phi, grid_to_dof_mapping_mat, LPT_func):
+def build_aero_matrix(n_dofs, cquad4_panels, phi, grid_to_dof_mapping_mat, LPT_func):
 
     fin_struct = struct.iso_fin_structural_axis(cquad4_panels)
 
@@ -166,32 +146,33 @@ def build_aero_matrix(n_dofs, nodes, cquad4_panels, phi, grid_to_dof_mapping_mat
         q_modal[j] = 1.0
         q_physical = phi @ q_modal
 
-
-        #entering this loop, how do we know which dof is excited?
         for cquad4_panel in cquad4_panels:
 
-            #NO: I THINK THE LOCAL PISTON THEORY SHOULD BE OUTSIDE OF THE NODE_IDX LOOP ON THE PANEL LEVEL
-            delta_p_unst = LPT_func(cquad4_panel, q_physical, grid_to_dof_mapping_mat)
+            for xi, eta in dat.gauss_coords_xi_eta:  # loop Gauss points
 
-            dF_panel_ = -delta_p_unst*cquad4_panel.n_*cquad4_panel.jacobian
+                delta_p_gp = LPT_func(cquad4_panel, q_physical, grid_to_dof_mapping_mat, xi, eta)
 
+                dF_gp = -delta_p_gp * cquad4_panel.n_ * cquad4_panel.compute_jacobian(xi, eta) # * gauss weight, which = 1 for our case
 
-            for node_idx, nid in enumerate(cquad4_panel.nodes):
-                node = cquad4_panel.nodes[nid]
+                # distribute Gauss point contribution to nodes
+                N = dat.shape_func(xi, eta)
 
-                xi, eta = dat.gauss_coords(node_idx)
-                F_node_ = dat.shape_func(node_idx, xi, eta) * dF_panel_
+                for node_idx, nid in enumerate(cquad4_panel.nodes):
+                    node = cquad4_panel.nodes[nid]
+                    F_node_ = N[node_idx] * dF_gp
 
-                #now sol the moment arms with the fin struct class and solve the net moment:
-                M_node_ = np.cross(fin_struct.bending_arm(node.r_), F_node_) + np.cross(fin_struct.torision_arm(node.r_), F_node_)
+                    # nodal moment arms
+                    M_node_ = (np.cross(fin_struct.bending_arm(node.r_), F_node_) +
+                               np.cross(fin_struct.torision_arm(node.r_), F_node_))
 
-                                                                            # M_y = 0 because no drilling dof!
-                dof_loads = [ F_node_[0], F_node_[1], F_node_[2], M_node_[0], 0, M_node_[2] ]
+                    dof_loads = [F_node_[0], F_node_[1], F_node_[2],
+                                 M_node_[0], 0.0, M_node_[2]]             #NOTE: Drilling DOF is excluded (because of assumtions of NASTRAN CQUAD4 SHELL ELEMENTS)
 
-                aero_col.add_dof_loads(nid, dof_loads)
+                    aero_col.add_dof_loads(nid, dof_loads)
 
         aero_matrix[:, j] = aero_col.col
         aero_col.clear()
 
     modal_aero_matrix = phi.T @ aero_matrix @ phi
     return modal_aero_matrix
+
