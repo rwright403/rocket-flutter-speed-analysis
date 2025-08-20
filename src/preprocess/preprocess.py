@@ -10,8 +10,8 @@ import pandas as pd
 
 
 ### NASTRAN 
-def read_nastran(input_module, self):
-    program_input = importlib.import_module(f"src.inputs.{input_module}")
+def read_nastran(input_module):
+    program_input = importlib.import_module(f"src.inputs.{input_module.input_file}")
     
     ## I/O
     if not Path(program_input.nastran_bdf_path).exists():

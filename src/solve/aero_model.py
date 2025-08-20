@@ -1,6 +1,6 @@
 import numpy as np
 from src.utils import dat
-from solve import struct
+from src.solve import struct
 
 """
 Parse the openfoam data and build all the node+ objects

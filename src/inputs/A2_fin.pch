@@ -1,15 +1,4 @@
-$$ optistruct
-ANALYSIS ONLY
-FORMAT OP2     
-OUTPUT,MATRIX,FULL,SPARSE
-SUBCASE        1
-  LABEL loadstep1
-ANALYSIS MODES
-  SPC =        2
-  METHOD(STRUCTURE) =        1
-BEGIN BULK
-
-PARAM,EXTOUT,DMIGPCH
+$ pyNastran : punch=True
 CORD2C         1        0.0     0.0     0.0     0.0     0.0     1.0     
 +       1.0     0.0     1.0     
 CORD2S         2        0.0     0.0     0.0     0.0     0.0     1.0     
@@ -1990,9 +1979,3 @@ SPC            2    1310  123456     0.0
 SPC            2    1315  123456     0.0
 SPC            2    1319  123456     0.0
 SPC            2    1420  123456     0.0
-ENDDATA
-
-ALTDOCTAG "\qTD_aRMMI\S\pMqM13G8Ho@N^]k]2nI6VmXb1Jr[Z0MP`QaVjNFQ6]n]o\4hfC3K1^9oGi9dbr62E?`bB^L?GP;?Om4mETcJMNNF8mN^EWLSUo_W^1j06;\;qK"
-ADI0.1.0 2025-08-20T02:12:17 1of1 HM11.0
-ENDDOCTAG
-$$<Altair_Model_Export/>
