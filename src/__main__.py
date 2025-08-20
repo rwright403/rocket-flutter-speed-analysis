@@ -1,9 +1,8 @@
 import argparse
 import numpy as np
-import pandas as pd
 from src.utils import utils, dat
 from src.preprocess import preprocess
-from solve import aero_model, struct
+from solve import aero_model
 from src.postprocess import postprocess
 
 if __name__ == "__main__":
@@ -62,4 +61,4 @@ if __name__ == "__main__":
     df = collector.to_dataframe()
     collector.save_csv("flutter_results.csv")
     postprocess.root_locus_plot(df)
-    postprocess.v_f_v_g_plot(df)
+    #postprocess.v_f_v_g_plot(df)

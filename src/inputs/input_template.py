@@ -1,25 +1,20 @@
 ### Program Ctrl input:
-"""
->f_max is the maximum frequency [rad/s] to define the range of modes analyzed for flutter from nastran
->f_min is the minimum frequency [rad/s] to define the range of modes analyzed for flutter from nastran
->f_pcnt_conv is the percentage difference between the guessed frequency and resolved frequency. Used to define "converged"
-"""
-f_max = # rad/s
-f_min = # rad/s
 
-max_iter = # unitless
-omega_pcnt_conv = # %
+output_filename = "out.csv"
 
-output_filename = # "out_str.csv"
+### Select the cfd software used to generate sample point output:
+# "OpenFOAM"
+# "CFX"
 
-### OpenFOAM input files for each relevant flow speed the user wants to analyze:
+cfd_software = "CFX"
+
+### input files for each relevant flow speed the user wants to analyze:
 # Dictionary format: {freestream velocity speed (m/s) (float): vtk_path (str)}
-openfoam_files = {
-    
+cfd_inputs = [
+    [400, 2.0, 1.221, "~/rocket-flutter-speed-analysis/openfoam_cases/[3]-80-pcnt-test-fin/postProcessing/sample/0/"],
     # Add more entries like:
-    # 686 : "~/OpenFOAM/.../Ma2.0_case.vtk",
-    # 1029: "~/OpenFOAM/.../Ma3.0_case.vtk",
-}
+    # [V_free, Ma_free, rho_free, "~/rocket-flutter-speed-analysis/openfoam_cases/[3]-80-pcnt-test-fin/.../0/"],
+]
 
 ### Altair Hyperworks (NASTRAN) input files:
 """
@@ -28,6 +23,6 @@ openfoam_files = {
 > .mat
 """
 
-nastran_bdf_path = #r" ./filepath here! "
-nastran_op2_path = #r" ./filepath here! "
-nastran_mat_path = #r" ./filepath here! "
+nastran_bdf_path = r"./_old/_old-1/model/test-case-3-learning/v3/tc3-v3-sol-103.bdf"
+nastran_op2_path = r"./_old/_old-1/model/test-case-3-learning/v3/tc3-v3-sol-103.op2"
+nastran_mat_path = r"./src/testing.full.mat"
