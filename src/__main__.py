@@ -18,11 +18,6 @@ if __name__ == "__main__":
     struct_harmonics = preprocess.read_nastran(input_module)
     cfd_cases = preprocess.read_cfd(input_module)
 
-
-#TODO:
-    elastic_axis = struct.solve_elastic_axis_isotropic_fin()
-    #NOTE: bending_axis for a symmetrical fin on xz plane --> moment arm is just 1/2*t
-
     ## get modal KGG AND MGG
     KGG_modal = utils.trans_matrix_phys_to_modal(struct_harmonics.phi, struct_harmonics.KGG)
     MGG_modal = utils.trans_matrix_phys_to_modal(struct_harmonics.phi, struct_harmonics.MGG)
@@ -38,14 +33,14 @@ if __name__ == "__main__":
         cquad4_panels = aero_model.build_cquad4_panel_array(struct_harmonics.model.elements, nodes)
 
         #note these are modal matrices!
-        A = (case.rho * case.V**2 / case.Ma) * aero_model.build_aero_matrix(
-            struct_harmonics.n_dofs, nodes, cquad4_panels,
+        A = (case.rho_free * case.V_free**2 / case.Ma_free) * aero_model.build_aero_matrix(
+            struct_harmonics.n_dofs, cquad4_panels,
             struct_harmonics.phi, struct_harmonics.DOF,
             aero_model.local_piston_theory_disp
         )
 
-        B = (case.rho * case.V / case.Ma) * aero_model.build_aero_matrix(
-            struct_harmonics.n_dofs, nodes, cquad4_panels,
+        B = (case.rho_free * case.V_free / case.Ma_free) * aero_model.build_aero_matrix(
+            struct_harmonics.n_dofs, cquad4_panels,
             struct_harmonics.phi, struct_harmonics.DOF,
             aero_model.local_piston_theory_velo
         )
@@ -57,16 +52,14 @@ if __name__ == "__main__":
         ])
 
         # solve eqn: z_hat * [C] = lambda * z_hat
-        eigvals, _ = np.linalg.eig(C)
-
+        eigvals, eigvecs = np.linalg.eig(C)
 
         # Add case results
         collector.add_case(case=case, eigvals=eigvals)
        
 
     ### Postprocessing 
-    # Postprocessing
     df = collector.to_dataframe()
     collector.save_csv("flutter_results.csv")
-    postprocess.root_locus_plot(df) #TODO: REDO THIS TO TAKE IN THE DATAFRAME NOT WHATEVER LEGACY
+    postprocess.root_locus_plot(df)
     postprocess.v_f_v_g_plot(df)

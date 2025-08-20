@@ -141,7 +141,9 @@ def write_ansys_cfx_csv(points, output_path):
 
 
 ###program start:
+
 #for my ref - remember to cd to this dir
+
 bdf_filepath = r"./a2-fin.bdf"
 stl_filepath = r"./A2-final-processed.STL"
 #openfoam_sample_dict_filename = "sampleDict"
@@ -152,7 +154,3 @@ sample_pts = project_node_y_direction(stl_filepath, sample_pts_xz)
 #write_openfoam_sample_dict(sample_pts, openfoam_sample_dict_filename)
 write_ansys_cfx_csv(sample_pts, ansys_cfx_filename)
 
-"""debug code to visualize points from project_node_y_direction"""
-
-"""for i in sample_pts_xz:
-    print(i)"""

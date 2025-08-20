@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
-from src.utils import utils, dat
-from typing import List
+from src.utils import dat
 from dataclasses import dataclass, field
 from scipy.sparse import csr_matrix
 from pyNastran.bdf.bdf import BDF
@@ -11,22 +10,21 @@ from pyNastran.op2.op2 import OP2
 GAMMA = 1.4
 R_SPEC_AIR = 287.0024853 #J/kg
 
-"""OpenFOAM result abstraction"""
+"""CFDresult abstraction"""
 
 @dataclass
-class CFDsamplepts:
-    # sampled CFD flow field on fin OML
-    pressures: np.ndarray 
-    densities: np.ndarray 
-    temperatures: np.ndarray
-    velocities: np.ndarray
+class CFDsamplepts:             # sampled CFD flow field on fin OML
+    pressures: np.ndarray           # Static Pressures (Pa)
+    densities: np.ndarray           # Density (kg/m^3)
+    speed_of_sounds: np.ndarray     # (m/s)
+    velocities: list[np.ndarray]    # (m/s)
 
 
 @dataclass
-class CFDcase:
-    V: float               # Freestream speed (m/s)
-    Mach: float            # Freestream Mach number
-    rho: float             # Freestream density (kg/m^3)
+class CFDcase:                  # a single result. Code setup for multiple cases for different flight conditions or linear flight reigimes
+    V_free: float                   # Freestream speed (m/s)
+    Mach_free: float                # Freestream Mach number
+    rho_free: float                 # Freestream density (kg/m^3)
     samplepts: CFDsamplepts
 
 
@@ -40,30 +38,24 @@ class NASTRANsol103:
     DOF: dict[int, int]
     n_dofs: int
 
-def gauss_coords(node_idx):
-    gauss_coords_xi = [    
-        -1/np.sqrt(3),    
-        1/np.sqrt(3),
-        1/np.sqrt(3),
-        -1/np.sqrt(3),
-    ]
+### Gauss Coordinates ordered by node_idx
 
-    gauss_coords_eta = [    
-        -1/np.sqrt(3),    
-        -1/np.sqrt(3),
-        1/np.sqrt(3),
-        1/np.sqrt(3),
-    ]
-    return gauss_coords_xi[node_idx], gauss_coords_eta[node_idx]
+gauss_coords_xi_eta = [    
+    [ -1/np.sqrt(3), -1/np.sqrt(3) ], 
+    [ 1/np.sqrt(3), -1/np.sqrt(3) ],
+    [ 1/np.sqrt(3), 1/np.sqrt(3) ],
+    [ -1/np.sqrt(3), 1/np.sqrt(3) ]
+]
 
-def shape_func(node_idx, xi, eta):
+
+def shape_func(xi, eta):
     N = [
         0.25 * (1 - xi) * (1 - eta),
         0.25 * (1 + xi) * (1 - eta),
         0.25 * (1 + xi) * (1 + eta),
         0.25 * (1 - xi) * (1 + eta),
     ]
-    return N[node_idx]
+    return N
 
 
 """
@@ -72,19 +64,19 @@ NODE (plus) abstraction
 y pos and y neg refer to the sides of the fin the flowfield is sampled at
 """
 class node_plus:
-    def __init__(self, r_=np.ndarray, p_y_pos=float, rho_y_pos=float, a_y_pos=float, u_y_pos_=float, p_y_neg=float, rho_y_neg=float, a_y_neg=float, u_y_neg_=float):
+    def __init__(self, r_=np.ndarray, p_y_pos=float, rho_y_pos=float, a_y_pos=float, v_y_pos_=float, p_y_neg=float, rho_y_neg=float, a_y_neg=float, v_y_neg_=float):
 
         self.r_ = r_
 
         self.p_y_pos = p_y_pos
         self.rho_y_pos = rho_y_pos
         self.a_y_pos = a_y_pos
-        self.u_y_pos_ = u_y_pos_
+        self.v_y_pos_ = v_y_pos_
 
         self.p_y_neg = p_y_neg
         self.rho_y_neg = rho_y_neg
         self.a_y_neg = a_y_neg
-        self.u_y_neg_ = u_y_neg_
+        self.v_y_neg_ = v_y_neg_
 
 
 
@@ -115,23 +107,24 @@ class cquad4_panel:
         cross = np.cross(v1,v2)
         return cross / np.linalg.norm(cross)
     
-    def compute_jacobian(self):
+    def compute_jacobian(self, xi, eta):
 
         pts = np.array([self.n1.r_, self.n2.r_, self.n3.r_, self.n4.r_])
 
+        # shape function derivatives at (xi, eta)
         dN_dxi = np.array([
-            -(1-(-1/np.sqrt(3))),   # dN1/dxi at eta = -1/sqrt(3)
-            (1-(-1/np.sqrt(3))),    # dN2/dxi at eta = -1/sqrt(3)
-            (1+(1/np.sqrt(3))),     # dN3/dxi at eta = 1/sqrt(3)
-            -(1+(1/np.sqrt(3)))     # dN4/dxi at eta = 1/sqrt(3)
-        ]) * 0.25
+            -0.25 * (1 - eta),   # dN1/dxi
+            0.25 * (1 - eta),   # dN2/dxi
+            0.25 * (1 + eta),   # dN3/dxi
+            -0.25 * (1 + eta)    # dN4/dxi
+        ])
 
         dN_deta = np.array([
-            -(1-(-1/np.sqrt(3))),   # dN1/deta at xi = -1/sqrt(3)
-            (1-(1/np.sqrt(3))),     # dN2/deta at xi = 1/sqrt(3)
-            (1+(1/np.sqrt(3))),     # dN3/deta at xi = 1/sqrt(3)
-            -(1+(-1/np.sqrt(3)))    # dN4/deta at xi = -1/sqrt(3)
-        ]) * 0.25
+            -0.25 * (1 - xi),    # dN1/deta
+            -0.25 * (1 + xi),    # dN2/deta
+            0.25 * (1 + xi),    # dN3/deta
+            0.25 * (1 - xi)     # dN4/deta
+        ])
 
         dr_dxi = np.tensordot(dN_dxi, pts, axes=(0,0) )
         dr_deta = np.tensordot(dN_deta, pts, axes=(0,0) )
@@ -155,7 +148,6 @@ class cquad4_panel:
 
         self.center = self.solve_center()
         self.n_ = self.solve_unit_normal_vec()
-        self.jacobian = self.compute_jacobian()
         self.t = elem.t
 
 
@@ -198,6 +190,7 @@ class FlutterResultsCollector:
                 "freq": freq,
                 "damping": damping
             })
+
 
     def to_dataframe(self) -> pd.DataFrame:
         return pd.DataFrame(self.results)
