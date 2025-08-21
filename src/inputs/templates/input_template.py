@@ -11,7 +11,7 @@ cfd_software = "CFX"
 ### input files for each relevant flow speed the user wants to analyze:
 # Dictionary format: {freestream velocity speed (m/s) (float): vtk_path (str)}
 cfd_inputs = [
-    [400, 2.0, 1.221, "~/rocket-flutter-speed-analysis/openfoam_cases/[3]-80-pcnt-test-fin/postProcessing/sample/0/"],
+    [548.8, 1.6, 1.225, "~/rocket-flutter-speed-analysis/openfoam_cases/[3]-80-pcnt-test-fin/postProcessing/sample/0/"],
     # Add more entries like:
     # [V_free, Ma_free, rho_free, "~/rocket-flutter-speed-analysis/openfoam_cases/[3]-80-pcnt-test-fin/.../0/"],
 ]

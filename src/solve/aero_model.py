@@ -3,43 +3,46 @@ from src.utils import dat
 from src.solve import struct
 
 """
-Parse the openfoam data and build all the node+ objects
+Parse the CFD data and build all the node+ objects
 """
-def build_node_plus_dict(model, openfoam_case):
+#TODO: MOVE TO UTILS OR PREPROCESSING
+def build_node_plus_dict(model, cfd_case):
 
     node_ids = sorted(model.nodes.keys()) #node_ids arranged in chronological order because openfoam dict in this order
     coords = np.array([model.nodes[nid].xyz for nid in node_ids])
 
+    print("cfd_case length:", len(cfd_case.samplepts.pressures),
+        "number of nodes:", len(node_ids))
+
     nodes = {}
     # Build dict of node_plus instances
-    j=0 #j is the index of the openfoam sample points. Order of data is that ith nastran node corresponds to the jth and j+1th openfoam sample points
+    j=-2 #j is the index of the cfd sample points. Order of data is that ith nastran node corresponds to the jth and j+1th openfoam sample points
     for i, nid in enumerate(node_ids):
 
         nodes[nid] = dat.node_plus(
-            r_=coords[nid],
+            r_=coords[i], #changed from nid to y
 
-            p_y_plus=(openfoam_case.samplepts.pressures[j]),
-            rho_y_plus=(openfoam_case.samplepts.densities[j]),
-            a_y_plus=np.sqrt(dat.GAMMA*openfoam_case.samplepts.temperatures[j]*dat.R_SPEC_AIR),
-            u_y_plus_= openfoam_case.samplepts.velocities[j],
+            p_y_pos = cfd_case.samplepts.pressures[j],
+            rho_y_pos = cfd_case.samplepts.densities[j],
+            a_y_pos = cfd_case.samplepts.speed_of_sounds[j],
+            v_y_pos_ = cfd_case.samplepts.velocities[j],
 
             #the sample point directly below is at the index (opposite side) + 1
-            p_y_neg=(openfoam_case.samplepts.pressures[j+1]),
-            rho_y_neg=(openfoam_case.samplepts.densities[j+1]),
-            a_y_neg=np.sqrt(dat.GAMMA*openfoam_case.samplepts.temperatures[j+1]*dat.R_SPEC_AIR),
-            u_y_neg_= openfoam_case.samplepts.velocities[j+1],
+            p_y_neg = cfd_case.samplepts.pressures[j+1],
+            rho_y_neg = cfd_case.samplepts.densities[j+1],
+            a_y_neg = cfd_case.samplepts.speed_of_sounds[j+1],
+            v_y_neg_ = cfd_case.samplepts.velocities[j+1],
         )
-        j +=2
 
     return nodes
 
-
-def build_cquad4_panel_array(nas_elements, nodes):
+#TODO: MOVE TO UTILS OR PREPROCESSING
+def build_cquad4_panel_array(fin_const_thickness, nas_elements, nodes):
     cquad4_panels = []
 
     for _, elem in nas_elements.items(): #NOTE: I BELIEVE THIS IS CORRECT BUT MIGHT NEED TO DOUBLE CHECK
         if elem.type == 'CQUAD4':
-            cquad4_panel = dat.cquad4_panel(elem, nodes)
+            cquad4_panel = dat.cquad4_panel(elem, nodes, fin_const_thickness)
             cquad4_panels.append(cquad4_panel)
         else:
             raise NotImplementedError("Input Nastran FEM contains elements that are not CQUAD4. This program only supports CQUAD4 elements.")
@@ -51,7 +54,7 @@ def build_cquad4_panel_array(nas_elements, nodes):
 def local_piston_theory_disp(cquad4_panel, q_physical, grid_to_dof_mapping_mat, xi, eta):
     """
     Local piston theory (displacement form).
-    Returns Δp_unsteady at one Gauss point (xi, eta).
+    Returns delta_p_unsteady at one Gauss point (xi, eta).
     """
 
     N = dat.shape_func(xi, eta)
@@ -65,10 +68,16 @@ def local_piston_theory_disp(cquad4_panel, q_physical, grid_to_dof_mapping_mat, 
 
     for node_idx, nid in enumerate(cquad4_panel.nodes):
         node = cquad4_panel.nodes[nid]
-
-        # look up node dofs x,y,z,Rx,Ry,Rz from q_physical with grid_to_dof_mapping_mat
-        idx = np.where(grid_to_dof_mapping_mat[0, :] == nid)[0][0]
-        dofs = q_physical[idx : idx + 6]
+        
+        try:
+            # look up node dofs x,y,z,Rx,Ry,Rz from q_physical with grid_to_dof_mapping_mat
+            idx = np.where(grid_to_dof_mapping_mat[0, :] == nid)[0][0]
+            dofs = q_physical[idx:idx+6]
+            if len(dofs) < 6:
+                raise ValueError("Incomplete DOFs")
+        except (IndexError, ValueError):
+            # if node dofs cant be found, they correspond to the constrained root nodes, still need to consider these but no displacment here
+            dofs = np.zeros(6)
 
         r_i_ = dofs[:3]         # translational displacements
         theta_i_ = dofs[3:6]    # rotational displacements
@@ -79,8 +88,12 @@ def local_piston_theory_disp(cquad4_panel, q_physical, grid_to_dof_mapping_mat, 
         rho_a_neg += N[node_idx] * (node.rho_y_neg * node.a_y_neg)
 
         # displacement vector at panel center
+
+
+        #print("theta_i_.shape:", theta_i_.shape, node.r_.shape, "center-node shape:", (cquad4_panel.center - node.r_).shape)
+
         u_ += N[node_idx] * (r_i_ + np.cross(theta_i_, (cquad4_panel.center - node.r_)))
-        V_panel += N[node_idx] * (node.v_y_pos - node.v_y_neg)
+        V_panel += N[node_idx] * (node.v_y_pos_ - node.v_y_neg_)
 
     # normal displacement at this Gauss point
     delta_n_ = np.dot(u_, cquad4_panel.n_) * cquad4_panel.n_ #vector projection (denom is unit vec so magnitude 1 and div by 1)
@@ -98,7 +111,7 @@ def local_piston_theory_disp(cquad4_panel, q_physical, grid_to_dof_mapping_mat, 
 
 def local_piston_theory_velo(cquad4_panel, q_physical, grid_to_dof_mapping_mat, xi, eta):
     """
-    Evaluate unsteady pressure at one Gauss point (xi, eta) on a CQUAD4 panel.
+    Evaluate and return unsteady pressure at one Gauss point (xi, eta) on a CQUAD4 panel.
     """
     N = dat.shape_func(xi, eta)
 
@@ -110,9 +123,15 @@ def local_piston_theory_velo(cquad4_panel, q_physical, grid_to_dof_mapping_mat, 
     for node_idx, nid in enumerate(cquad4_panel.nodes):
         node = cquad4_panel.nodes[nid]
 
-        # look up node DOFs in physical space
-        idx = np.where(grid_to_dof_mapping_mat[0, :] == nid)[0][0]
-        dofs = q_physical[idx: idx + 6]
+        try:
+            # look up node dofs x,y,z,Rx,Ry,Rz from q_physical with grid_to_dof_mapping_mat
+            idx = np.where(grid_to_dof_mapping_mat[0, :] == nid)[0][0]
+            dofs = q_physical[idx:idx+6]
+            if len(dofs) < 6:
+                raise ValueError("Incomplete DOFs")
+        except (IndexError, ValueError):
+            # if node dofs cant be found, they correspond to the constrained root nodes, still need to consider these but no displacment here
+            dofs = np.zeros(6)
 
         v_i_ = dofs[:3]      # translational velocities
         omega_i_ = dofs[3:6] # rotational velocities
@@ -134,15 +153,17 @@ def local_piston_theory_velo(cquad4_panel, q_physical, grid_to_dof_mapping_mat, 
 
 
 
-def build_aero_matrix(n_dofs, cquad4_panels, phi, grid_to_dof_mapping_mat, LPT_func):
+def build_aero_matrix(cquad4_panels, phi, grid_to_dof_mapping_mat, LPT_func):
+    n_dofs = phi.shape[0]
+    n_modes = phi.shape[1]
 
-    fin_struct = struct.iso_fin_structural_axis(cquad4_panels)
+    fin_struct = struct.iso_fin_structural_axis(cquad4_panels) #TODO: move to main
 
     aero_matrix = np.zeros((n_dofs, n_dofs))
     aero_col = dat.AeroMatColumn(grid_to_dof_mapping_mat)
 
-    for j in range(n_dofs):
-        q_modal = np.zeros(n_dofs)
+    for j in range(n_modes):
+        q_modal = np.zeros(n_modes)
         q_modal[j] = 1.0
         q_physical = phi @ q_modal
 
@@ -172,6 +193,8 @@ def build_aero_matrix(n_dofs, cquad4_panels, phi, grid_to_dof_mapping_mat, LPT_f
 
         aero_matrix[:, j] = aero_col.col
         aero_col.clear()
+
+        print(f"finished building col {j}")
 
     modal_aero_matrix = phi.T @ aero_matrix @ phi
     return modal_aero_matrix
