@@ -169,7 +169,7 @@ class FlutterResultsCollector:
     def __init__(self):
         self.results = []
 
-    def add_case(self, case: CFDcase, eigvals: np.ndarray):
+    def add_case(self, V_sweep, case: CFDcase, eigvals: np.ndarray):
         for mode_number, lam in enumerate(eigvals, start=1):
             sigma = lam.real
             omega = lam.imag
@@ -177,7 +177,7 @@ class FlutterResultsCollector:
             damping = -sigma / np.sqrt(sigma**2 + omega**2) if omega != 0 else np.nan
 
             self.results.append({
-                "speed": case.V_free,
+                "speed": V_sweep,
                 "Mach": case.Mach_free,
                 "rho": case.rho_free,
                 "mode": mode_number,

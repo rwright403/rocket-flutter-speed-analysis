@@ -1,4 +1,7 @@
+import numpy as np
 ### Program Ctrl input:
+
+sweep_velocities = np.linspace(300, 1200, 18)
 
 output_filename = "out.csv"
 
@@ -11,7 +14,7 @@ cfd_software = "CFX"
 ### input files for each relevant flow speed the user wants to analyze:
 # Dictionary format: {freestream velocity speed (m/s) (float): vtk_path (str)}
 cfd_inputs = [
-    [400, 2.0, 1.221, "./src/inputs/AOA0_vector.csv"],
+    [548.8, 1.6, 1.225, "./src/inputs/AOA0_vector.csv"],
     # Add more entries like:
     # [V_free, Ma_free, rho_free, "./[3]-80-pcnt-test-fin/.../0/"],
 ]

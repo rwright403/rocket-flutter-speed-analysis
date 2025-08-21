@@ -1,4 +1,5 @@
 import argparse
+import importlib
 import numpy as np
 from src.utils import utils, dat
 from src.preprocess import preprocess
@@ -12,9 +13,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run the simulation with a specified input file.')
     parser.add_argument('input_file', type=str, help='The name of the input file to use (e.g., constants1) without the .py extension')
     input_module = parser.parse_args()
+    program_input = importlib.import_module(f"src.inputs.{input_module.input_file}")
 
     ### Preprocess NASTRAN and CFD
-    struct_harmonics = preprocess.read_nastran(input_module)
+    struct_harmonics = preprocess.read_nastran(program_input)
 
     """
     def find_nodes_with_missing_dofs(grid_to_dof_mapping_mat):
@@ -30,7 +32,7 @@ if __name__ == "__main__":
     print(find_nodes_with_missing_dofs(struct_harmonics.DOF) )"""
 
 
-    cfd_cases = preprocess.read_cfd(input_module)
+    cfd_cases = preprocess.read_cfd(program_input)
 
     ## get modal KGG AND MGG
 
@@ -49,37 +51,36 @@ if __name__ == "__main__":
     for case in cfd_cases:
 
         nodes = aero_model.build_node_plus_dict(struct_harmonics.model, case)
-
         fin_const_thickness = utils.get_fin_const_thickness(struct_harmonics.model)
-
         cquad4_panels = aero_model.build_cquad4_panel_array(fin_const_thickness, struct_harmonics.model.elements, nodes)
 
-        #note these are modal matrices!
-        A = (case.rho_free * case.V_free**2 / case.Mach_free) * aero_model.build_aero_matrix(
-            cquad4_panels, struct_harmonics.phi, struct_harmonics.DOF,
-            aero_model.local_piston_theory_disp
-        )
+        a_free = case.V_free / case.Mach_free
 
-        B = (case.rho_free * case.V_free / case.Mach_free) * aero_model.build_aero_matrix(
-            cquad4_panels, struct_harmonics.phi, struct_harmonics.DOF,
-            aero_model.local_piston_theory_velo
-        )
+        A_star = aero_model.build_aero_matrix(cquad4_panels, struct_harmonics.phi, struct_harmonics.DOF, aero_model.local_piston_theory_disp)
+        B_star = aero_model.build_aero_matrix(cquad4_panels, struct_harmonics.phi, struct_harmonics.DOF, aero_model.local_piston_theory_velo)
 
-        #spin yo block!
-        C = np.block([
-            [np.zeros((struct_harmonics.phi.shape[1], struct_harmonics.phi.shape[1])), np.eye(struct_harmonics.phi.shape[1])],
-            [np.linalg.solve(MGG_modal, A - KGG_modal), np.linalg.solve(MGG_modal, B)],
-        ])
+        # Sweep speeds
+        for V_sweep in program_input.sweep_velocities:
 
-        # solve eqn: z_hat * [C] = lambda * z_hat
-        eigvals, eigvecs = np.linalg.eig(C)
+            #note these are modal matrices!
+            A =  case.rho_free * a_free * V_sweep * A_star
+            B =  case.rho_free * a_free * B_star
 
-        # Add case results
-        collector.add_case(case=case, eigvals=eigvals)
-       
+            #spin yo block!
+            C = np.block([
+                [np.zeros((struct_harmonics.phi.shape[1], struct_harmonics.phi.shape[1])), np.eye(struct_harmonics.phi.shape[1])],
+                [np.linalg.solve(MGG_modal, A - KGG_modal), np.linalg.solve(MGG_modal, B)],
+            ])
+
+            # solve eqn: z_hat * [C] = lambda * z_hat
+            eigvals, eigvecs = np.linalg.eig(C)
+
+            # Add case results
+            collector.add_case(V_sweep, case, eigvals)
+
 
     ### Postprocessing 
     df = collector.to_dataframe()
     collector.save_csv("flutter_results.csv")
     postprocess.root_locus_plot(df)
-    #postprocess.v_f_v_g_plot(df)
+    postprocess.v_f_v_g_plot(df)

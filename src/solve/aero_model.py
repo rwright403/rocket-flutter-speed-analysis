@@ -154,6 +154,7 @@ def local_piston_theory_velo(cquad4_panel, q_physical, grid_to_dof_mapping_mat, 
 
 
 def build_aero_matrix(cquad4_panels, phi, grid_to_dof_mapping_mat, LPT_func):
+
     n_dofs = phi.shape[0]
     n_modes = phi.shape[1]
 
@@ -187,7 +188,9 @@ def build_aero_matrix(cquad4_panels, phi, grid_to_dof_mapping_mat, LPT_func):
                                np.cross(fin_struct.torision_arm(node.r_), F_node_))
 
                     dof_loads = [F_node_[0], F_node_[1], F_node_[2],
-                                 M_node_[0], 0.0, M_node_[2]]             #NOTE: Drilling DOF is excluded (because of assumtions of NASTRAN CQUAD4 SHELL ELEMENTS)
+                                    M_node_[0], 0.0, M_node_[2]]             
+                        #NOTE: Drilling DOF is excluded (because of assumtions of NASTRAN CQUAD4 SHELL ELEMENTS)
+                        
 
                     aero_col.add_dof_loads(nid, dof_loads)
 
@@ -198,4 +201,5 @@ def build_aero_matrix(cquad4_panels, phi, grid_to_dof_mapping_mat, LPT_func):
 
     modal_aero_matrix = phi.T @ aero_matrix @ phi
     return modal_aero_matrix
+    """NOTE: "FORCE" AND "UNSTEADY PRESSURE" SHOULD BE USED LOOSELY HERE BECAUSE THEY ARE DIMENSIONALIZED DIFFERENTLY"""
 

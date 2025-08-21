@@ -1,7 +1,6 @@
 import numpy as np
 from pathlib import Path
 import os
-import importlib
 from pyNastran.bdf.bdf import BDF
 from pyNastran.op2.op2 import OP2
 from src.utils import utils, dat
@@ -10,9 +9,8 @@ import pandas as pd
 
 
 ### NASTRAN 
-def read_nastran(input_module):
-    program_input = importlib.import_module(f"src.inputs.{input_module.input_file}")
-    
+def read_nastran(program_input):
+
     ## I/O
     if not Path(program_input.nastran_bdf_path).exists():
         raise FileNotFoundError(f"Input BDF file not found: {program_input.nastran_bdf_path}")
@@ -150,8 +148,7 @@ def read_cfx_cfd_samplepts(path):
 
 
 
-def read_cfd(input_module):
-    program_input = importlib.import_module(f"src.inputs.{input_module.input_file}")
+def read_cfd(program_input):
     cfd_cases = []
 
     samplepts: dat.CFDsamplepts

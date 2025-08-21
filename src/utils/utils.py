@@ -186,3 +186,20 @@ def reduce_phi(phi_full, grid_to_dof_mapping_mat, all_grid_ids=None):
 
     return phi_full[keep_idx, :]
 
+
+"""def redimensionalize(A_star, B_star, rho, V, c_ref, S_ref):
+    q_inf = 0.5 * rho * V**2
+
+    # copy to avoid modifying in place
+    A = A_star.copy()
+    B = B_star.copy()
+
+    # Force rows (0:3) → multiply by q_inf * S
+    A[0:3, :] *= q_inf * S_ref
+    B[0:3, :] *= q_inf * S_ref
+
+    # Moment rows (3:6) → multiply by q_inf * S * c_ref
+    A[3:6, :] *= q_inf * S_ref * c_ref
+    B[3:6, :] *= q_inf * S_ref * c_ref
+
+    return A, B"""
