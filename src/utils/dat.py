@@ -93,23 +93,19 @@ class node_plus:
 
 class cquad4_panel:
     def solve_center(self):
-        center = np.zeros(3)
-        for node_idx, nid in enumerate(cquad4_panel.nodes):
-            node = cquad4_panel.nodes[nid]
-            xi, eta = dat.gauss_coords(node_idx)
-            center += dat.shape_func(node_idx, xi, eta) * node.r_
-        return center
+        coords = np.array([self.nodes[nid].r_ for nid in self.nodes])
+        return coords.mean(axis=0)
 
     def solve_unit_normal_vec(self):
-        v1 = self.n2.r_ - self.n1.r_ # type: ignore
-        v2 = self.n3.r_ - self.n1.r_ # type: ignore
+        coords = [node.r_ for _, node in self.nodes.items()]
+        v1 = coords[1] - coords[0]  # G2 - G1
+        v2 = coords[2] - coords[0]  # G3 - G1
 
         cross = np.cross(v1,v2)
         return cross / np.linalg.norm(cross)
     
     def compute_jacobian(self, xi, eta):
-
-        pts = np.array([self.n1.r_, self.n2.r_, self.n3.r_, self.n4.r_])
+        pts = [node.r_ for _, node in self.nodes.items()]
 
         # shape function derivatives at (xi, eta)
         dN_dxi = np.array([
@@ -134,7 +130,7 @@ class cquad4_panel:
         return np.linalg.norm(normal)
     
 
-    def __init__(self, elem, node_lookup: dict[int, node_plus]):
+    def __init__(self, elem, node_lookup: dict[int, node_plus], fin_const_thickness):
         # Extract node IDs in Nastran's sequential order
         nid1, nid2, nid3, nid4 = elem.node_ids
 
@@ -148,7 +144,7 @@ class cquad4_panel:
 
         self.center = self.solve_center()
         self.n_ = self.solve_unit_normal_vec()
-        self.t = elem.t
+        self.t = fin_const_thickness
 
 
 class AeroMatColumn:
@@ -157,7 +153,7 @@ class AeroMatColumn:
         self.col = np.zeros( len(self.grid_to_dof_mapping_mat[0]) )
 
     def clear(self):
-        self.col.clear()
+        self.col.fill(0)
 
     def add_dof_loads(self, grid_id, dof_loads):
         # Find indices where grid_id matches the node ID row
@@ -173,7 +169,7 @@ class FlutterResultsCollector:
     def __init__(self):
         self.results = []
 
-    def add_case(self, case: CFDcase, eigvals: np.ndarray):
+    def add_case(self, V_sweep, case: CFDcase, eigvals: np.ndarray):
         for mode_number, lam in enumerate(eigvals, start=1):
             sigma = lam.real
             omega = lam.imag
@@ -181,9 +177,9 @@ class FlutterResultsCollector:
             damping = -sigma / np.sqrt(sigma**2 + omega**2) if omega != 0 else np.nan
 
             self.results.append({
-                "speed": case.V,
-                "Mach": case.Mach,
-                "rho": case.rho,
+                "speed": V_sweep,
+                "Mach": case.Mach_free,
+                "rho": case.rho_free,
                 "mode": mode_number,
                 "real": sigma,
                 "imag": omega,

@@ -1,7 +1,6 @@
 import numpy as np
 from pathlib import Path
 import os
-import importlib
 from pyNastran.bdf.bdf import BDF
 from pyNastran.op2.op2 import OP2
 from src.utils import utils, dat
@@ -10,9 +9,8 @@ import pandas as pd
 
 
 ### NASTRAN 
-def read_nastran(input_module, self):
-    program_input = importlib.import_module(f"src.inputs.{input_module}")
-    
+def read_nastran(program_input):
+
     ## I/O
     if not Path(program_input.nastran_bdf_path).exists():
         raise FileNotFoundError(f"Input BDF file not found: {program_input.nastran_bdf_path}")
@@ -48,22 +46,24 @@ def read_nastran(input_module, self):
         # Each mode is stored separately, so we extract all displacement vectors
         n_modes, n_nodes, n_dofs_per_node = mode_obj.data.shape
 
-        n_dofs = n_nodes * n_dofs_per_node
-
         # Each mode's shape: (n_nodes * 6,) flattened displacement
         phi_list = [
             mode_obj.data[i_mode].reshape(-1)  # Flatten to (n_nodes*6,)
             for i_mode in range(n_modes)
         ]
 
-        phi = np.column_stack(phi_list)  # shape: (n_dofs, n_modes)
-        #print("phi shape:", self.phi.shape)
+        phi_full = np.column_stack(phi_list)
+
 
         
     with utils.runtime("read .mat"):       # global matrices
         KGG = utils.read_and_parse_full_matrix("STIFFNESS", full_mat_path)
         MGG = utils.read_and_parse_full_matrix("MASS", full_mat_path)
         DOFS = utils.read_and_parse_full_matrix("DOFS", full_mat_path)
+
+
+    phi = utils.reduce_phi(phi_full, DOFS)        
+    n_dofs = phi.shape[0]
 
     return dat.NASTRANsol103(
         model,
@@ -136,7 +136,7 @@ def read_cfx_cfd_samplepts(path):
     temperatures = df["Temperature [ K ]"].to_numpy()
 
     return dat.CFDsamplepts(
-        pressures=df["Static Pressure [ Pa ]"].to_numpy(),
+        pressures=df["Pressure [ Pa ]"].to_numpy(),
         densities=df["Density [ kg m^-3 ]"].to_numpy(),
         speed_of_sounds = np.sqrt(dat.GAMMA * dat.R_SPEC_AIR * temperatures),
         velocities = np.stack([ 
@@ -148,8 +148,7 @@ def read_cfx_cfd_samplepts(path):
 
 
 
-def read_cfd(input_module):
-    program_input = importlib.import_module(f"src.inputs.{input_module}")
+def read_cfd(program_input):
     cfd_cases = []
 
     samplepts: dat.CFDsamplepts
@@ -159,14 +158,14 @@ def read_cfd(input_module):
         if program_input.cfd_software == "OpenFOAM":
             samplepts = read_openfoam_cfd_samplepts(cfd_input[3])
         elif program_input.cfd_software == "CFX":
-            samplepts = read_openfoam_cfd_samplepts(cfd_input[3])
+            samplepts = read_cfx_cfd_samplepts(cfd_input[3])
         else:
             raise ValueError(f"Unsupported CFD software: {program_input.cfd_software}")
 
         case = dat.CFDcase(
             V_free = cfd_input[0],
-            Ma_free = cfd_input[1],
-            rho_Free = cfd_input[2],
+            Mach_free = cfd_input[1],
+            rho_free = cfd_input[2],
             samplepts = samplepts
         )
 

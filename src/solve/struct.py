@@ -28,10 +28,10 @@ class iso_fin_structural_axis:
 
         # now we need to sort the corners:
         # inbd leading edge coords will have smallest vector magnitude
-        self.inbd_le = min(corner_node_positions.values(), key=lambda p: np.linalg.norm(p))
+        self.inbd_le = min(corner_node_positions, key=lambda p: np.linalg.norm(p))
 
         # outbd leading edge: smallest x out of remaining 3
-        remaining = [p for p in corner_node_positions.values() if not np.allclose(p, self.inbd_le)]
+        remaining = [p for p in corner_node_positions if not np.allclose(p, self.inbd_le)]
         outbd_le = min(remaining, key=lambda p: p[0])
 
         # Trailing edge inboard: smallest z out of remaining 3
@@ -47,7 +47,7 @@ class iso_fin_structural_axis:
 
         self.torision_axis = self.r_inbd_centroid - self.r_outbd_centroid
 
-        self.bending_axis = self.inbd_te - self.outbd_le
+        self.bending_axis = inbd_te - outbd_le
 
     def bending_arm(self, pt):
         #Project point P onto bending axis to get param line eqn and thus location along axis, then sol and return bending moment arm
