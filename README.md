@@ -1,6 +1,7 @@
 Note: this program currently exists unvalidated. Proceed with extreme caution 
 
 # rocket-flutter-speed-analysis 🚀
+
 Created for UVic Rocketry https://onlineacademiccommunity.uvic.ca/rocketry/rockets/ :)
 
 While NACA 4917 is commonly and successfully used for student rocketry, it is based on empirical data and is only valid for fins made of isotropic fins.
@@ -13,7 +14,6 @@ There are definitely some future improvements for this program however, I am hap
 - Program poorly handles any node that does not have exactly 6 dof and cannot handle any element types other than CQUAD4
 - Program definitely requires more validation work to get a true understanding of the limitations and error
 - Could look into building multiple aero matrices A and B instead of relying on one sweep where flow results are linear wrt A and B
-
 
 ## Running this program:
 This file takes input in the form of a python module file. 
