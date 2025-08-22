@@ -155,7 +155,7 @@ Exit with - deactivate -->
 
 ## UVic Rocketry Anduril-2 Information:
 
-![Flutter](images/UVic-Rocketry-Anduril-2.jpg)
+![Flutter](images/UVic-Rocketry-Anduril-2.JPG)
 
 The team's 9th competition rocket. Building off of the success of the first supersonic rocket Anduril-1 built the year before.
 Flew at the 2025 Launch Canada Competition. Unfortunately something odd happened during recovery and its fuselage currently lies somewhere in a field in rural Ontario. We found the nosecone though.
@@ -214,7 +214,7 @@ Just to make it clear, we would need to do a lot more work to validate some of t
 
 Despite this, I am happy with the amount of learning I achieved through making this program, I am going to set it aside for now and I will try to come back to it at some point.
 
-                                                _______
-        UVic Rocketry Fin Flutter Solver       /       \~
-                                              /         \~
-_____________________________________________/           \~
+>                                                _______
+>        UVic Rocketry Fin Flutter Solver       /       \~
+>                                              /         \~
+>_____________________________________________/           \~
