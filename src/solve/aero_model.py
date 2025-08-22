@@ -151,4 +151,3 @@ def build_aero_matrix(cquad4_panels, phi, grid_to_dof_mapping_mat, LPT_func):
     modal_aero_matrix = phi.T @ aero_matrix @ phi
     return modal_aero_matrix
     """NOTE: "FORCE" AND "UNSTEADY PRESSURE" SHOULD BE USED LOOSELY HERE BECAUSE THEY ARE DIMENSIONALIZED DIFFERENTLY"""
-

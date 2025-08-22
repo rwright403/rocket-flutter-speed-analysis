@@ -118,8 +118,6 @@ def read_and_parse_full_matrix(mat_str, filepath):
             row_idx = idx
             break
 
-    print(f"\nthe row found is {row_idx}\n")
-
     # Parse header line
     header = lines[row_idx].split()
 
