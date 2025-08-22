@@ -1,53 +1,7 @@
 import numpy as np
 from src.utils import dat
 from src.solve import struct
-
-"""
-Parse the CFD data and build all the node+ objects
-"""
-#TODO: MOVE TO UTILS OR PREPROCESSING
-def build_node_plus_dict(model, cfd_case):
-
-    node_ids = sorted(model.nodes.keys()) #node_ids arranged in chronological order because openfoam dict in this order
-    coords = np.array([model.nodes[nid].xyz for nid in node_ids])
-
-    print("cfd_case length:", len(cfd_case.samplepts.pressures),
-        "number of nodes:", len(node_ids))
-
-    nodes = {}
-    # Build dict of node_plus instances
-    j=-2 #j is the index of the cfd sample points. Order of data is that ith nastran node corresponds to the jth and j+1th openfoam sample points
-    for i, nid in enumerate(node_ids):
-
-        nodes[nid] = dat.node_plus(
-            r_=coords[i], #changed from nid to y
-
-            p_y_pos = cfd_case.samplepts.pressures[j],
-            rho_y_pos = cfd_case.samplepts.densities[j],
-            a_y_pos = cfd_case.samplepts.speed_of_sounds[j],
-            v_y_pos_ = cfd_case.samplepts.velocities[j],
-
-            #the sample point directly below is at the index (opposite side) + 1
-            p_y_neg = cfd_case.samplepts.pressures[j+1],
-            rho_y_neg = cfd_case.samplepts.densities[j+1],
-            a_y_neg = cfd_case.samplepts.speed_of_sounds[j+1],
-            v_y_neg_ = cfd_case.samplepts.velocities[j+1],
-        )
-
-    return nodes
-
-#TODO: MOVE TO UTILS OR PREPROCESSING
-def build_cquad4_panel_array(fin_const_thickness, nas_elements, nodes):
-    cquad4_panels = []
-
-    for _, elem in nas_elements.items(): #NOTE: I BELIEVE THIS IS CORRECT BUT MIGHT NEED TO DOUBLE CHECK
-        if elem.type == 'CQUAD4':
-            cquad4_panel = dat.cquad4_panel(elem, nodes, fin_const_thickness)
-            cquad4_panels.append(cquad4_panel)
-        else:
-            raise NotImplementedError("Input Nastran FEM contains elements that are not CQUAD4. This program only supports CQUAD4 elements.")
-
-    return cquad4_panels
+from tqdm import tqdm
 
 
 
@@ -106,9 +60,6 @@ def local_piston_theory_disp(cquad4_panel, q_physical, grid_to_dof_mapping_mat, 
 
 
 
-
-
-
 def local_piston_theory_velo(cquad4_panel, q_physical, grid_to_dof_mapping_mat, xi, eta):
     """
     Evaluate and return unsteady pressure at one Gauss point (xi, eta) on a CQUAD4 panel.
@@ -163,7 +114,7 @@ def build_aero_matrix(cquad4_panels, phi, grid_to_dof_mapping_mat, LPT_func):
     aero_matrix = np.zeros((n_dofs, n_dofs))
     aero_col = dat.AeroMatColumn(grid_to_dof_mapping_mat)
 
-    for j in range(n_modes):
+    for j in tqdm(range(n_modes)):
         q_modal = np.zeros(n_modes)
         q_modal[j] = 1.0
         q_physical = phi @ q_modal
@@ -196,8 +147,6 @@ def build_aero_matrix(cquad4_panels, phi, grid_to_dof_mapping_mat, LPT_func):
 
         aero_matrix[:, j] = aero_col.col
         aero_col.clear()
-
-        print(f"finished building col {j}")
 
     modal_aero_matrix = phi.T @ aero_matrix @ phi
     return modal_aero_matrix

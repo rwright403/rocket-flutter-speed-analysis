@@ -1,8 +1,9 @@
 import time
-from contextlib import contextmanager
 import numpy as np
+from contextlib import contextmanager
 from scipy.sparse import csr_matrix
 import re
+from src.utils import dat
 
 def _print_stars():
     print("\n" + "*" * 20 + "\n")
@@ -50,6 +51,51 @@ def get_fin_const_thickness(model):
             else:
                 raise ValueError(f"Unsupported property type {prop.type} for element {eid}")
 
+"""
+Parse the CFD data and build all the node+ objects
+"""
+def build_node_plus_dict(model, cfd_case):
+
+    node_ids = sorted(model.nodes.keys()) #node_ids arranged in chronological order because openfoam dict in this order
+    coords = np.array([model.nodes[nid].xyz for nid in node_ids])
+
+    print("cfd_case length:", len(cfd_case.samplepts.pressures),
+        "number of nodes:", len(node_ids))
+
+    nodes = {}
+    # Build dict of node_plus instances
+    j=-2 #j is the index of the cfd sample points. Order of data is that ith nastran node corresponds to the jth and j+1th openfoam sample points
+    for i, nid in enumerate(node_ids):
+
+        nodes[nid] = dat.node_plus(
+            r_=coords[i], #changed from nid to y
+
+            p_y_pos = cfd_case.samplepts.pressures[j],
+            rho_y_pos = cfd_case.samplepts.densities[j],
+            a_y_pos = cfd_case.samplepts.speed_of_sounds[j],
+            v_y_pos_ = cfd_case.samplepts.velocities[j],
+
+            #the sample point directly below is at the index (opposite side) + 1
+            p_y_neg = cfd_case.samplepts.pressures[j+1],
+            rho_y_neg = cfd_case.samplepts.densities[j+1],
+            a_y_neg = cfd_case.samplepts.speed_of_sounds[j+1],
+            v_y_neg_ = cfd_case.samplepts.velocities[j+1],
+        )
+
+    return nodes
+
+
+def build_cquad4_panel_array(fin_const_thickness, nas_elements, nodes):
+    cquad4_panels = []
+
+    for _, elem in nas_elements.items(): #NOTE: I BELIEVE THIS IS CORRECT BUT MIGHT NEED TO DOUBLE CHECK
+        if elem.type == 'CQUAD4':
+            cquad4_panel = dat.cquad4_panel(elem, nodes, fin_const_thickness)
+            cquad4_panels.append(cquad4_panel)
+        else:
+            raise NotImplementedError("Input Nastran FEM contains elements that are not CQUAD4. This program only supports CQUAD4 elements.")
+
+    return cquad4_panels
 
 
 
@@ -185,21 +231,3 @@ def reduce_phi(phi_full, grid_to_dof_mapping_mat, all_grid_ids=None):
     keep_idx = [node_dof_order[(gid, did)] for gid, did in zip(grid_ids, dof_ids)]
 
     return phi_full[keep_idx, :]
-
-
-"""def redimensionalize(A_star, B_star, rho, V, c_ref, S_ref):
-    q_inf = 0.5 * rho * V**2
-
-    # copy to avoid modifying in place
-    A = A_star.copy()
-    B = B_star.copy()
-
-    # Force rows (0:3) → multiply by q_inf * S
-    A[0:3, :] *= q_inf * S_ref
-    B[0:3, :] *= q_inf * S_ref
-
-    # Moment rows (3:6) → multiply by q_inf * S * c_ref
-    A[3:6, :] *= q_inf * S_ref * c_ref
-    B[3:6, :] *= q_inf * S_ref * c_ref
-
-    return A, B"""

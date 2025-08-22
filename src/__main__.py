@@ -36,13 +36,8 @@ if __name__ == "__main__":
 
     ## get modal KGG AND MGG
 
-    print("KGG shape:", struct_harmonics.KGG.shape)
-    print("phi shape:", struct_harmonics.phi.shape)
-
-
     KGG_modal = struct_harmonics.phi.T @ struct_harmonics.KGG @ struct_harmonics.phi
     MGG_modal = struct_harmonics.phi.T @ struct_harmonics.MGG @ struct_harmonics.phi
-
 
     ### State Space method to sol Flutter: 
 
@@ -50,13 +45,16 @@ if __name__ == "__main__":
 
     for case in cfd_cases:
 
-        nodes = aero_model.build_node_plus_dict(struct_harmonics.model, case)
+        nodes = utils.build_node_plus_dict(struct_harmonics.model, case)
         fin_const_thickness = utils.get_fin_const_thickness(struct_harmonics.model)
-        cquad4_panels = aero_model.build_cquad4_panel_array(fin_const_thickness, struct_harmonics.model.elements, nodes)
+        cquad4_panels = utils.build_cquad4_panel_array(fin_const_thickness, struct_harmonics.model.elements, nodes)
 
         a_free = case.V_free / case.Mach_free
 
+        print("\nBuilding Aero Stiffness Matrix:")
         A_star = aero_model.build_aero_matrix(cquad4_panels, struct_harmonics.phi, struct_harmonics.DOF, aero_model.local_piston_theory_disp)
+        
+        print("\nBuilding Aero Damping Matrix:")
         B_star = aero_model.build_aero_matrix(cquad4_panels, struct_harmonics.phi, struct_harmonics.DOF, aero_model.local_piston_theory_velo)
 
         # Sweep speeds
@@ -78,6 +76,7 @@ if __name__ == "__main__":
             # Add case results
             collector.add_case(V_sweep, case, eigvals)
 
+    utils._print_figma()
 
     ### Postprocessing 
     df = collector.to_dataframe()
