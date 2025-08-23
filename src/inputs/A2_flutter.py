@@ -14,7 +14,7 @@ cfd_software = "CFX"
 ### input files for each relevant flow speed the user wants to analyze:
 # Dictionary format: {freestream velocity speed (m/s) (float): vtk_path (str)}
 cfd_inputs = [
-    [548.8, 1.6, 1.225, "./src/inputs/AOA0_vector.csv"],
+    [548.8, 1.6, 1.225, "./src/inputs/AOA5_vector.csv"],
     # Add more entries like:
     # [V_free, Ma_free, rho_free, "./[3]-80-pcnt-test-fin/.../0/"],
 ]
