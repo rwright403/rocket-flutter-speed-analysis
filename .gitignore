@@ -6,5 +6,5 @@ __pycache__/
 
 _old/
 research/
-openfoam_cases/
+sims/
 inputs/tmp.py

@@ -187,6 +187,8 @@ The UVR Analysis and Structures team created the OML based on mission requiremen
 
 From this geometry, a CFD simulation was performed and a FEM was created. We assumed the deflection at the root is so minimal it can be neglected, so we only made an fem of the fin and treated it as fixed at the root.
 
+Massive thanks to Gordon So for helping me setup and run the CFD!
+
 ![Flutter](images/A2-Fin-CFD-0-AOA.png)
 
 For our flutter analysis, we looked at 0, 2.5 and 5 degree AOA cases. The results of the 0 degree AOA case are presented above.
@@ -214,7 +216,13 @@ Just to make it clear, we would need to do a lot more work to validate some of t
 
 Despite this, I am happy with the amount of learning I achieved through making this program, I am going to set it aside for now and I will try to come back to it at some point.
 
->                                                _______
->        UVic Rocketry Fin Flutter Solver       /       \~
->                                              /         \~
->_____________________________________________/           \~
+## Next Steps:
+- More validation work
+- It would be very easy to leverage Altair Optistruct to model fin flutter on composite plate fins. At this stage I believe the only addition would be some calculator to get the composite fin torision axis.
+
+```
+                                               _______
+       UVic Rocketry Fin Flutter Solver       /       \~
+                                             /         \~
+____________________________________________/           \~
+```
