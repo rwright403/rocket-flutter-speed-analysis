@@ -1,3 +1,5 @@
+Note: I definitely did something wrong here, the frequencies seem OOM off of what they should be so the result is garbage out :(. Hopefully I can fix this sometime soon, but my focus right now is on designing a rocket engine here: https://github.com/rwright403/king_hybrid
+
 Note: this program currently exists unvalidated. Proceed with extreme caution 
 
 # rocket-flutter-speed-analysis 🚀
